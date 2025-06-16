@@ -1,0 +1,70 @@
+[27-Jun-2024 08:19:04 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "App\Exceptions\Handler" does not exist in /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php:912
+Stack trace:
+#0 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(912): ReflectionClass->__construct()
+#1 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#2 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#3 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(297): Illuminate\Foundation\Application->resolve()
+#4 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(908): Illuminate\Container\Container->Illuminate\Container\{closure}()
+#5 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#6 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#7 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(731): Illuminate\Foundation\Application->resolve()
+#8 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(946): Illuminate\Container\Container->make()
+#9 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(288): Illuminate\Foundation\Application->make()
+#10 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(218): Illuminate\Foundation\Bootstrap\HandleExceptions->getExceptionHandler()
+#11 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(195): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#12 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#13 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#14 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [App\Exceptions\Handler] does not exist. in /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php:914
+Stack trace:
+#0 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#1 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#2 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(297): Illuminate\Foundation\Application->resolve()
+#3 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(908): Illuminate\Container\Container->Illuminate\Container\{closure}()
+#4 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#5 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#6 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(731): Illuminate\Foundation\Application->resolve()
+#7 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(946): Illuminate\Container\Container->make()
+#8 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(288): Illuminate\Foundation\Application->make()
+#9 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(218): Illuminate\Foundation\Bootstrap\HandleExceptions->getExceptionHandler()
+#10 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(195): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#11 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#12 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#13 {main}
+  thrown in /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 914
+[27-Jun-2024 08:19:04 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "App\Exceptions\Handler" does not exist in /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php:912
+Stack trace:
+#0 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(912): ReflectionClass->__construct()
+#1 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#2 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#3 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(297): Illuminate\Foundation\Application->resolve()
+#4 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(908): Illuminate\Container\Container->Illuminate\Container\{closure}()
+#5 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#6 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#7 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(731): Illuminate\Foundation\Application->resolve()
+#8 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(946): Illuminate\Container\Container->make()
+#9 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(288): Illuminate\Foundation\Application->make()
+#10 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(218): Illuminate\Foundation\Bootstrap\HandleExceptions->getExceptionHandler()
+#11 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(195): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#12 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#13 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#14 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [App\Exceptions\Handler] does not exist. in /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php:914
+Stack trace:
+#0 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#1 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#2 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(297): Illuminate\Foundation\Application->resolve()
+#3 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(908): Illuminate\Container\Container->Illuminate\Container\{closure}()
+#4 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\Container\Container->build()
+#5 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(961): Illuminate\Container\Container->resolve()
+#6 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php(731): Illuminate\Foundation\Application->resolve()
+#7 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(946): Illuminate\Container\Container->make()
+#8 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(288): Illuminate\Foundation\Application->make()
+#9 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(218): Illuminate\Foundation\Bootstrap\HandleExceptions->getExceptionHandler()
+#10 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(195): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#11 /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#12 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#13 {main}
+  thrown in /home/zjguepsz/public_html/akkclinic.com/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 914
