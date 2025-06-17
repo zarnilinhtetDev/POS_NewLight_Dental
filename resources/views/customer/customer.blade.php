@@ -234,7 +234,10 @@
                                         @foreach ($customers as $customer)
                                             <tr>
                                                 <td>{{ $no }}</td>
-                                                <td>{{ $customer->name }}</a></td>
+                                                <td><a
+                                                        href="{{ route('customer_invoice', ['customer_id' => $customer->id]) }}">{{ $customer->name }}</a>
+                                                </td>
+
                                                 <td>{{ $customer->phno }}</td>
                                                 <td>{{ $customer->age }}</td>
                                                 <td>

@@ -67,13 +67,13 @@
                     <div class="container-fluid">
                         <div class="mb-2 row">
                             <div class="col-sm-6">
-                                <h1>Items Reports</h1>
+                                <h1>Treatment Items Reports</h1>
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
                                     <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Dashboard</a>
                                     </li>
-                                    <li class="breadcrumb-item">Items Reports
+                                    <li class="breadcrumb-item">Treatment Items Reports
                                     </li>
                                 </ol>
                             </div>
@@ -90,7 +90,7 @@
                     <!-- general form elements -->
 
                     <!-- /.modal -->
-                    <div class="row">
+                    {{-- <div class="row">
                         <a href="{{ url('report') }}" class="mx-1 ml-3 btn btn-primary">Invoices</a>
                         <a href="{{ url('report_item') }}" class="mx-1 ml-3 btn btn-primary ">Items</a>
                         <a href="{{ url('report_expense') }}" class="mx-1 ml-3 btn btn-primary ">Expenses</a>
@@ -99,7 +99,7 @@
                             <a href="{{ url('profit') }}" class="mx-1 ml-3 btn btn-primary">Profit</a>
                         @endif
 
-                    </div>
+                    </div> --}}
                     <div class="my-5 container-fluid">
                         <div class="row">
                             <div class="col-md-6">
@@ -126,7 +126,7 @@
                     <div class="mt-3 col-md-12">
                         <div class="card ">
                             <div class="card-header">
-                                <h3 class="card-title">Item Report</h3>
+                                <h3 class="card-title">Treatment Item Report</h3>
                             </div>
 
                             <!-- /.card-header -->

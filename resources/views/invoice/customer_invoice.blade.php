@@ -170,21 +170,11 @@
                                                 @endif
                                                 <td>{{ $invoice->invoice_date }}</td>
                                                 <td>
-
-
-
-                                                    @if ($invoice->status == 'invoice')
-                                                        <a href="{{ url('make_payment', $invoice->id) }}"
-                                                            class="btn btn-warning btn-sm text-white mb-1"><i
-                                                                class="fa-solid fa-money-check-dollar"></i>
-                                                        </a>
-                                                    @endif
-
                                                     <a href="{{ url('/invoice_detail', $invoice->id) }}"
                                                         class="btn btn-primary btn-sm"><i
                                                             class="fa-solid fa-eye"></i></a>
-                                                    <a href="{{ url('/invoice_receipt', $invoice->id) }}"
-                                                        class="btn btn-info btn-sm"><i
+                                                    {{-- <a href="{{ url('/invoice_receipt', $invoice->id) }}"
+                                                        class="btn btn-warning btn-sm"><i
                                                             class="text-white fa-solid fa-print"></i></a>
                                                     @if ($invoice->status == 'invoice')
                                                         <a href="{{ url('invoice_edit', $invoice->id) }}"
@@ -197,7 +187,7 @@
                                                             class="btn btn-danger btn-sm"
                                                             onclick="return confirm('Are you sure you want to delete this Invoice ?')"><i
                                                                 class="fa-solid fa-trash"></i></a>
-                                                    @endif
+                                                    @endif --}}
                                                 </td>
                                             </tr>
                                             @php

@@ -67,13 +67,13 @@
                     <div class="container-fluid">
                         <div class="mb-2 row">
                             <div class="col-sm-6">
-                                <h1>Expenses Reports</h1>
+                                <h1>Clinic Items Reports</h1>
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
                                     <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Dashboard</a>
                                     </li>
-                                    <li class="breadcrumb-item">Expenses Reports
+                                    <li class="breadcrumb-item">Clinic Items Reports
                                     </li>
                                 </ol>
                             </div>
@@ -103,83 +103,30 @@
                     <div class="my-5 container-fluid">
                         <div class="row">
                             <div class="col-md-6">
-                                <form action="{{ url('expense_search') }}" method="get">
+                                <form action="{{ url('clinic_item_search') }}" method="get">
+                                    @csrf
                                     <div class="row">
-                                        <div class="col-md-4 form-group">
-                                            <label for="start_date">Date From:</label>
-                                            <input type="date" name="start_date" class="form-control"
-                                                value="{{ old('start_date', isset($start_date) ? $start_date : '') }}"
-                                                required>
+                                        <div class="col-md-5 form-group">
+                                            <label for="start_date">Date From :</label>
+                                            <input type="date" name="start_date" class="form-control" required>
                                         </div>
-                                        <div class="col-md-4 form-group">
-                                            <label for="end_date">Date To:</label>
-                                            <input type="date" name="end_date" class="form-control"
-                                                value="{{ old('end_date', isset($end_date) ? $end_date : '') }}"
-                                                required>
+                                        <div class="col-md-5 form-group">
+                                            <label for="end_date">Date To :</label>
+                                            <input type="date" name="end_date" class="form-control" required>
                                         </div>
-                                        @if (auth()->user()->is_admin == '1' || Auth::user()->type == 'Admin')
-                                            <div class="col-md-4 form-group">
-                                                <label for="branch">Branch:</label>
-                                                <select name="branch" id="branch" class="form-control">
-                                                    <option value="">All</option>
-                                                    @foreach ($branch_drop as $drop)
-                                                        <option value="{{ $drop->id }}"
-                                                            {{ old('branch', isset($branch) ? $branch : '') == $drop->id ? 'selected' : '' }}>
-                                                            {{ $drop->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        @else
-                                            <div class="col-md-4 form-group" style="display: none;">
-                                                <label for="branch">Branch:</label>
-                                                <select name="branch" id="branch" class="form-control">
-                                                    @foreach ($branch_drop as $drop)
-                                                        @if ($drop->id == auth()->user()->level)
-                                                            <option value="{{ $drop->id }}">
-                                                                {{ $drop->name }}
-                                                            </option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        @endif
-                                        <div class="col-md-3 form-group">
+                                        <div class="mt-3 col-md-3 form-group">
                                             <input type="submit" class="btn btn-primary form-control" value="Search"
                                                 style="background-color: #218838">
                                         </div>
                                     </div>
                                 </form>
-
                             </div>
                         </div>
                     </div>
                     <div class="mt-3 col-md-12">
                         <div class="card ">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h3 class="card-title">Expense Report</h3>
-
-                                <div class="dropdown ml-auto mr-5">
-                                    <!-- Dropdown Menu HTML -->
-                                    @if (auth()->user()->is_admin == '1' || Auth::user()->type == 'Admin')
-                                        <div id="branchDropdown" class="dropdown ml-auto"
-                                            style="display:inline-block; margin-left: 10px;">
-                                            <button class="btn btn-secondary dropdown-toggle" type="button"
-                                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">
-                                                {{ $currentBranchName }}
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                <a href="{{ url('report_expense') }}" class="dropdown-item">All
-                                                    Expense</a>
-                                                @foreach ($branch_drop as $drop)
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('report_exp', $drop->id) }}">{{ $drop->name }}</a>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
+                            <div class="card-header">
+                                <h3 class="card-title">Clinic Item Report</h3>
                             </div>
 
                             <!-- /.card-header -->
@@ -192,54 +139,97 @@
                                             <th>Name</th>
                                             <th>Category</th>
                                             <th>Description</th>
+                                            <th>Quantity</th>
                                             <th>Date</th>
-                                            <th>Branch</th>
-                                            <th>Amount</th>
-                                            <!-- <th>Action</th> -->
+                                            <th>Sale Price</th>
+                                            <th>Buy Price</th>
+                                            <th>Profit</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @php
                                             $no = '1';
+                                            $totalProfit = 0;
                                         @endphp
-                                        @if (!empty($search_expenses))
-                                            @foreach ($search_expenses as $expense)
+                                        @if (!empty($search_items))
+                                            @foreach ($search_items as $item)
                                                 <tr>
                                                     <td>{{ $no }}</td>
-                                                    <td>{{ $expense->name }}</td>
-                                                    <td>{{ $expense->category }}</td>
-                                                    <td>{{ $expense->description }}</td>
-                                                    <td>{{ $expense->date }}
+                                                    <td>{{ $item->item_name }}</td>
+                                                    <td>{{ $item->item_unit }}</td>
+                                                    <td>{{ $item->descriptions }}</td>
+                                                    <td>{{ $item->quantity }}</td>
+                                                    <td>{{ $item->created_at->format('d M Y') }}
                                                     </td>
-                                                    <td>
-                                                        @foreach ($branch_drop as $branch)
-                                                            @if ($branch->id == $expense->branch)
-                                                                {{ $branch->name }}
-                                                            @endif
-                                                        @endforeach
+                                                    <td class="text-right">
+                                                        {{ number_format($item->buy_price ?? $item->service_buy_price) }}
+
                                                     </td>
-                                                    <td class="text-right">{{ number_format($expense->amount) }}</td>
+                                                    <td class="text-right">
+                                                        {{ number_format($item->sale_price ?? '0') }}</td>
+                                                    <td class="text-right">
+                                                        @if (isset($item->buy_price) || isset($item->service_buy_price))
+                                                            @php
+                                                                $buyPrice =
+                                                                    $item->buy_price ?? $item->service_buy_price;
+                                                                $salePrice = $item->sale_price ?? null;
+                                                                $profit =
+                                                                    $salePrice !== null
+                                                                        ? $buyPrice - $salePrice
+                                                                        : $buyPrice;
+                                                            @endphp
+
+                                                            {{ number_format($profit, 2, '.', ',') }}
+
+                                                            @php
+                                                                $totalProfit += $profit;
+                                                            @endphp
+                                                        @else
+                                                            N/A
+                                                        @endif
+                                                    </td>
                                                 </tr>
                                                 @php
                                                     $no++;
                                                 @endphp
                                             @endforeach
                                         @else
-                                            @foreach ($expenses as $expense)
+                                            @foreach ($items as $item)
                                                 <tr>
                                                     <td>{{ $no }}</td>
-                                                    <td>{{ $expense->name }}</td>
-                                                    <td>{{ $expense->category }}</td>
-                                                    <td>{{ $expense->description }}</td>
-                                                    <td>{{ $expense->date }}</td>
-                                                    <td>
-                                                        @foreach ($branch_drop as $branch)
-                                                            @if ($branch->id == $expense->branch)
-                                                                {{ $branch->name }}
-                                                            @endif
-                                                        @endforeach
+                                                    <td>{{ $item->item_name }}</td>
+                                                    <td>{{ $item->item_unit }}</td>
+                                                    <td>{{ $item->descriptions }}</td>
+                                                    <td>{{ $item->quantity }}</td>
+                                                    <td>{{ $item->created_at->format('d M Y') }}
                                                     </td>
-                                                    <td class="text-right">{{ number_format($expense->amount) }}</td>
+                                                    <td class="text-right">
+                                                        {{ number_format($item->buy_price ?? $item->service_buy_price) }}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{ number_format($item->sale_price ?? '0') }}</td>
+
+                                                    <td class="text-right">
+                                                        @if (isset($item->buy_price) || isset($item->service_buy_price))
+                                                            @php
+                                                                $buyPrice =
+                                                                    $item->buy_price ?? $item->service_buy_price;
+                                                                $salePrice = $item->sale_price ?? null;
+                                                                $profit =
+                                                                    $salePrice !== null
+                                                                        ? $buyPrice - $salePrice
+                                                                        : $buyPrice;
+                                                            @endphp
+
+                                                            {{ number_format($profit) }}
+
+                                                            @php
+                                                                $totalProfit += $profit;
+                                                            @endphp
+                                                        @else
+                                                            N/A
+                                                        @endif
+                                                    </td>
                                                 </tr>
                                                 @php
                                                     $no++;
@@ -251,12 +241,20 @@
                                         <tr>
                                             <td colspan="6" style="text-align:right">Total</td>
                                             <td colspan="" class="text-right">
-                                                @if (!empty($search_expenses))
+                                                @if (!empty($search_items))
                                                     {{ number_format($search_total) }}
                                                 @else
                                                     {{ number_format($total) }}
                                                 @endif
                                             </td>
+                                            <td colspan="" class="text-right">
+                                                @if (!empty($search_items))
+                                                    {{ number_format($search_total_2) }}
+                                                @else
+                                                    {{ number_format($total_2) }}
+                                                @endif
+                                            </td>
+                                            <td class="text-right"> {{ number_format($totalProfit) }}</td>
                                         </tr>
                                     </tfoot>
                                     </tbody>
@@ -305,7 +303,7 @@
                 "buttons": [{
                         extend: 'excelHtml5',
                         text: 'Excel',
-                        filename: 'report_expenses', // Set filename here
+                        filename: 'report_items', // Set filename here
                     },
                     {
                         extend: 'pdfHtml5',

@@ -144,6 +144,12 @@
 
                                                     <td>{{ $pos->total }}</td>
                                                     <td>
+
+                                                        <a href="{{ url('po_make_payment', $pos->id) }}"
+                                                            class="btn btn-warning btn-sm text-white mb-1"><i
+                                                                class="fa-solid fa-money-check-dollar"></i>
+                                                        </a>
+
                                                         <a href="{{ route('purchase_order_details', $pos->id) }}"
                                                             class="btn btn-primary btn-sm"><i
                                                                 class="fa-solid fa-eye"></i></a>
@@ -177,6 +183,13 @@
 
                                                             <td>{{ $pos->total }}</td>
                                                             <td>
+
+                                                                <a href="{{ url('po_make_payment', $pos->id) }}"
+                                                                    class="btn btn-warning btn-sm text-white mb-1"><i
+                                                                        class="fa-solid fa-money-check-dollar"></i>
+                                                                </a>
+
+
                                                                 <a href="{{ route('purchase_order_details', $pos->id) }}"
                                                                     class="btn btn-primary btn-sm"><i
                                                                         class="fa-solid fa-eye"></i></a>

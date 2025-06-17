@@ -68,7 +68,7 @@
                 </section>
 
                 <div class="ml-2 container-fluid">
-                    <div class="row">
+                    {{-- <div class="row">
                         <a href="{{ url('report') }}" class="mx-1 ml-3 btn btn-primary">Invoices</a>
                         <a href="{{ url('report_item') }}" class="mx-1 btn btn-primary">Items</a>
                         <a href="{{ url('report_expense') }}" class="mx-1 btn btn-primary">Expenses</a>
@@ -76,7 +76,7 @@
                             <a href="{{ url('doctor') }}" class="mx-1 ml-3 btn btn-primary">Doctors</a>
                             <a href="{{ url('profit') }}" class="mx-1 ml-3 btn btn-primary">Profit</a>
                         @endif
-                    </div>
+                    </div> --}}
 
                     <div class="my-5 container-fluid">
                         <div class="row">

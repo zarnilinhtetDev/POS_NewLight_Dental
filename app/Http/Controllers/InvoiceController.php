@@ -13,6 +13,7 @@ use App\Models\Customer;
 
 use App\Models\Supplier;
 use App\Models\Warehouse;
+use App\Models\MakePayment;
 use Illuminate\Http\Request;
 use App\Models\InvoiceEditHistory;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,25 @@ class InvoiceController extends Controller
             'invoices',
             'warehouses'
         ));
+    }
+
+
+    public function customer_invoice($customer_id = null)
+    {
+        $query = Invoice::where('status', 'invoice');
+
+        if (!auth()->user()->is_admin && auth()->user()->type !== 'Admin') {
+            $query->where('branch', auth()->user()->level);
+        }
+
+        if ($customer_id) {
+            $query->where('customer_id', $customer_id); // Make sure your invoices table has `customer_id`
+        }
+
+        $invoices = $query->latest()->get();
+        $warehouses = Warehouse::all();
+
+        return view('invoice.customer_invoice', compact('invoices', 'warehouses'));
     }
 
 
@@ -133,7 +153,7 @@ class InvoiceController extends Controller
         $count = count($invoice_number);
 
         $doctor = Supplier::where('id', $request->doctor_id)->first();
-        $doctor_commission = ($request->total - $total_sale_price)*($doctor->sale_commission / 100);
+        $doctor_commission = ($request->total - $total_sale_price) * ($doctor->sale_commission / 100);
         // dd((int)$doctor_commission);
 
         if ($count < 1) {
@@ -326,7 +346,7 @@ class InvoiceController extends Controller
         }
 
         $total_sale_price = 0;
-        if($request->input('sale_price')){
+        if ($request->input('sale_price')) {
             $total_sale_price = array_sum($request->input('sale_price'));
         }
         // dd($total_sale_price);
@@ -455,12 +475,15 @@ class InvoiceController extends Controller
         return redirect('/invoice')->with('status', 'Change Invoice Successful!');
     }
 
+
+
+
+    // Customer Name Serarch
     public function customer_service_search(Request $request)
     {
         $data = Customer::select('name', 'phno')
             ->where('branch', $request->location)
             ->where('name', 'LIKE', '%' . $request->get('query') . '%')
-            ->orWhere('phno', 'LIKE', '%' . $request->get('query') . '%')
             ->get(); // Retrieve all matching records
 
         info($request->location);
@@ -485,6 +508,42 @@ class InvoiceController extends Controller
 
         return response()->json($responseData);
     }
+
+
+    //Customer Phone Search
+
+    public function customer_phone_search(Request $request)
+    {
+        $data = Customer::select('name', 'phno')
+            ->where('branch', $request->location)
+            ->where('phno', 'LIKE', '%' . $request->get('query') . '%')
+            ->get(); // Retrieve all matching records
+
+        info($request->location);
+        return response()->json($data);
+    }
+
+
+    public function customer_phone_search_fill(Request $request)
+    {
+
+        $product = Customer::where('phno', $request->model)
+            ->where('branch', $request->location)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if (!$product) {
+            return response()->json(['error' => 'Customer not found'], 404);
+        }
+        $responseData = [
+            'customer' => $product,
+
+        ];
+
+        return response()->json($responseData);
+    }
+
+
+
 
     public function autocompletePartCodeInvoice(Request $request)
     {
@@ -634,8 +693,8 @@ class InvoiceController extends Controller
     public function invoiceEditHistory()
     {
         if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
-        $invoice_histories = InvoiceEditHistory::latest()->get();
-        return view('invoice.invoice_edit_history', compact('invoice_histories'));
+            $invoice_histories = InvoiceEditHistory::latest()->get();
+            return view('invoice.invoice_edit_history', compact('invoice_histories'));
         } else {
             $invoice_histories = InvoiceEditHistory::where('branch', auth()->user()->level)->latest()->get();
             return view('invoice.invoice_edit_history', compact('invoice_histories'));
@@ -695,4 +754,123 @@ class InvoiceController extends Controller
     //         return redirect()->back()->with('error', 'There was an error updating the reservation: ' . $e->getMessage());
     //     }
     // }
+
+
+    //Make Payment
+
+
+    public function payment($id)
+    {
+        $make_payments = Invoice::whereIn('status', ['invoice', 'pos'])->where('id', $id)->first();
+        $payments = MakePayment::where('invoice_id', $id)
+            ->where('invoice_no', '!=', null)
+            ->get();
+        $payments_number = MakePayment::latest()->first();
+        return view('invoice.make_payment', compact('make_payments', 'payments', 'payments_number'));
+    }
+
+
+
+    public function payment_store(Request $request, $id)
+    {
+
+        if ($request->remain_balance == '0') {
+            return redirect()->back()->with('error', 'Remaining Balance is 0 , Nothing To Pay!');
+        }
+
+        $make_payments = new MakePayment();
+
+        $invoice = Invoice::where('status', 'invoice')->where('id', $id)->first();
+
+        $make_payments->amount = $request->amount;
+        $make_payments->note = $request->note;
+        $make_payments->invoice_no = $request->invoice_no;
+        $make_payments->invoice_id = $invoice->id;
+        $make_payments->location = $request->branch;
+        $make_payments->payment_date = $request->payment_date;
+        $make_payments->cash_back = $request->cash_back;
+        // $invoice->cash_back += $request->cash_back;
+        $make_payments->save();
+
+        //end substract receivable deposit when make makepayment
+
+
+        $invoice->deposit = $request->amount + $invoice->deposit;
+        $invoice->remain_balance = $invoice->remain_balance - ($request->amount - $request->cash_back);
+        $invoice->update();
+
+
+
+        return redirect(url('invoice'))->with('success', 'Payment Added Successfull!');
+    }
+
+
+
+
+
+    public function payment_edit($id)
+    {
+        $make_payments = MakePayment::where('id', $id)->first();
+
+        if (!$make_payments) {
+            return redirect()->back()->with('error', 'Payment not found!');
+        }
+
+        $invoice = Invoice::where('id', $make_payments->invoice_id)->first();
+        // dd($invoice);
+
+        if (!$invoice) {
+            return redirect()->back()->with('error', 'Invoice not found!');
+        }
+
+        return view('invoice.make_payment_edit', compact('make_payments', 'invoice'));
+    }
+
+
+
+
+    public function payment_update($id, Request $request)
+    {
+        $make_payments = MakePayment::where('id', $id)->first();
+
+        if (!$make_payments) {
+            return redirect()->back()->with('error', 'Payment not found!');
+        }
+
+        $old_amount = $make_payments->amount;
+        $old_cash_back = $make_payments->cash_back;
+
+        $invoice = Invoice::where('id', $make_payments->invoice_id)->first();
+
+        if (!$invoice) {
+            return redirect()->back()->with('error', 'Invoice not found!');
+        }
+
+        // Update payment info
+        $make_payments->amount = $request->amount;
+        $make_payments->note = $request->note;
+        $make_payments->invoice_no = $request->invoice_no;
+        $make_payments->location = $request->branch;
+        $make_payments->payment_date = $request->payment_date;
+        $make_payments->cash_back = $request->cash_back;
+        $make_payments->save();
+
+        // Adjust invoice values
+        $invoice->deposit = $invoice->deposit - $old_amount + $request->amount;
+        $invoice->remain_balance = $invoice->remain_balance + ($old_amount - $old_cash_back) - ($request->amount - $request->cash_back);
+        $invoice->update();
+
+        return redirect()->route('make_payment', $make_payments->invoice_id)->with('success', 'Payment Updated Successfully!');
+    }
+
+    public function voucherView(MakePayment $make_payment)
+    {
+        $invoice = Invoice::where('id', $make_payment->invoice_id)->orWhere('id', $make_payment->invoice_record)->first();
+        // $payment_methods = InvoicePaymentMethod::where('invoice_id', $invoice->id)->get();
+        return view('invoice.invoice_voucher', [
+            'invoice' => $invoice,
+            'make_payment' => $make_payment,
+            // 'payment_methods' => $payment_methods,
+        ]);
+    }
 }

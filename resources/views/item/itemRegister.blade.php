@@ -162,6 +162,7 @@
                                             <option selected disabled>Select Category</option>
                                             <option id="Service" value="Service">Service</option>
                                             <option id="Lab" value="Lab">Lab</option>
+                                            <option id="Clinic" value="Clinic">Clinic</option>
                                         </select>
                                         @error('item_unit')
                                             <p class="text-danger">{{ $message }}</p>

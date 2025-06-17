@@ -85,7 +85,7 @@
 
                 <div class="ml-2 container-fluid">
 
-                    <div class="row">
+                    {{-- <div class="row">
 
                         <a href="{{ url('report') }}" class="mx-1 ml-3 btn btn-primary">Invoices</a>
                         <a href="{{ url('report_quotation') }}" class="btn btn-primary">Quotations</a>
@@ -96,7 +96,7 @@
                         <a href="{{ url('report_pos') }}" class="mx-1 btn btn-primary ">POS</a>
 
 
-                    </div>
+                    </div> --}}
                     <div class="my-5 container-fluid">
                         <div class="row">
                             <div class="col-md-6">

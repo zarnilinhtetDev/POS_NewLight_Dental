@@ -21,6 +21,14 @@
                     data-accordion="false">
 
                     <li class="nav-item">
+                        <a href="{{ url('/dashboard') }}" class="nav-link">
+                            <i class="text-white fa-solid fa-house nav-icon "></i>
+                            <p class="pl-3 text-white">
+                                Dashboard </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="text-white nav-icon fas fa-table"></i>
                             <p class="pl-3 text-white">
@@ -227,6 +235,14 @@
                     data-accordion="false">
 
                     <li class="nav-item">
+                        <a href="{{ url('/dashboard') }}" class="nav-link">
+                            <i class="text-white fa-solid fa-house nav-icon "></i>
+                            <p class="pl-3 text-white">
+                                Dashboard </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="text-white nav-icon fas fa-table"></i>
                             <p class="pl-3 text-white">
@@ -409,14 +425,69 @@
                         </a>
 
                     </li>
-                    <li class="nav-item">
+
+
+
+                    {{-- <li class="nav-item">
                         <a href="{{ url('/report') }}" class="nav-link">
                             <i class="text-white fa-solid fa-list-ul nav-icon"></i>
                             <p class="pl-3 text-white">
                                 Report
                             </p>
                         </a>
+                    </li> --}}
+
+
+                    <li class="nav-item">
+                        <a href="" class="nav-link">
+                            <i class="text-white fa-solid fa-receipt nav-icon"></i>
+                            <p class="pl-3 text-white">
+                                Report
+                            </p><i class="text-white right fas fa-angle-left"></i>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ url('report') }}" class="nav-link">
+                                    <i class="text-white far fa-circle nav-icon"></i>
+                                    <p class="text-white">Invoices</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('report_item') }}" class="nav-link">
+                                    <i class="text-white far fa-circle nav-icon"></i>
+                                    <p class="text-white">Treatment Items</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('report_clinic_item') }}" class="nav-link">
+                                    <i class="text-white far fa-circle nav-icon"></i>
+                                    <p class="text-white">Clinic Items</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('report_expense') }}" class="nav-link">
+                                    <i class="text-white far fa-circle nav-icon"></i>
+                                    <p class="text-white">Expenses</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url('report_doctor') }}" class="nav-link">
+                                    <i class="text-white far fa-circle nav-icon"></i>
+                                    <p class="text-white">Doctors</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url('profit') }}" class="nav-link">
+                                    <i class="text-white far fa-circle nav-icon"></i>
+                                    <p class="text-white">Profit</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
+
+
                     <li class="nav-item">
                         <a href="{{ url('/user') }}" class="nav-link">
                             <i class="text-white fa-solid fa-users nav-icon"></i>

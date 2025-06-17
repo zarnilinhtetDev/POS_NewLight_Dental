@@ -11,6 +11,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ExpenseCategoryController;
@@ -30,11 +31,17 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    //Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('items', [ItemController::class, 'index']);
+
 
     Route::get('items', [ItemController::class, 'index']);
     Route::post('items_register', [ItemController::class, 'register']);
@@ -85,8 +92,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/autocomplete-part-code', [PurchaseOrderController::class, 'autocompletePartCode'])->name('autocomplete.part-code');
     Route::post('/get-part-data', [PurchaseOrderController::class, 'getPartData'])->name('get.part.data');
 
+
+    // Po Make Payment
+
+    Route::get('po_make_payment/{id}', [PurchaseOrderController::class, 'po_payment'])->name('po_make_payment');
+    Route::post('po_make_payment_store/{id}', [PurchaseOrderController::class, 'po_payment_store']);
+    Route::get('po_cash_voucher_edit/{id}', [PurchaseOrderController::class, 'po_payment_edit']);
+    Route::post('po_payment_update/{id}', [PurchaseOrderController::class, 'po_payment_update'])->name('po_payment_update');
+    Route::get('po_cash_voucher/{make_payment}', [PurchaseOrderController::class, 'PovoucherView'])->name('po_voucher_view');
+
+
+
+
     //Invoice
-    Route::get('invoice', [InvoiceController::class, 'index'])->middleware('isCashier');
+    Route::get('invoice', [InvoiceController::class, 'index'])->middleware('isCashier')->name('invoice');
+    // Route::get('customer_invoice', [InvoiceController::class, 'customer_invoice'])->middleware('isCashier')->name('customer_invoice');
+    Route::get('customer_invoice/{customer_id?}', [InvoiceController::class, 'customer_invoice'])
+        ->middleware('isCashier')
+        ->name('customer_invoice');
     Route::post('invoice_register', [InvoiceController::class, 'invoice_register'])->middleware('isCashier');
     Route::get('invoice_reg', [InvoiceController::class, 'invoice'])->middleware('isCashier');
     Route::get('invoice_edit/{id}', [InvoiceController::class, 'invoice_edit'])->middleware('isCashier');
@@ -105,6 +128,10 @@ Route::middleware('auth')->group(function () {
     Route::get('quotation_register', [InvoiceController::class, 'quotation_register'])->middleware('isBranchManager');
     Route::get('/customer_service', [InvoiceController::class, 'customer_service_search'])->name('customer_service_search');
     Route::post('/customer_service', [InvoiceController::class, 'customer_service_search_fill'])->name('customer_service_search_fill');
+
+    Route::get('/customer_phone', [InvoiceController::class, 'customer_phone_search'])->name('customer_phone_search');
+    Route::post('/customer_phone', [InvoiceController::class, 'customer_phone_search_fill'])->name('customer_phone_search_fill');
+
     Route::get('quotation_delete/{id}', [InvoiceController::class, 'quotation_delete'])->middleware('isBranchManager');
     Route::get('quotation_edit/{id}', [InvoiceController::class, 'quotation_edit'])->middleware('isBranchManager');
     Route::get('change_invoice/{id}', [InvoiceController::class, 'change_invoice'])->middleware('isBranchManager');
@@ -114,6 +141,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/get-barcode-data-invoice', [InvoiceController::class, 'getBarcodeData'])->name('get.barcode.data-invoice');
     Route::post('/autocomplete-part-code', [InvoiceController::class, 'autocompletePartCodeInvoice'])->name('autocomplete-part-code-invoice');
     Route::post('/get-part-data', [InvoiceController::class, 'getPartDataInvoice'])->name('get-part-data-invoice');
+
+    //makepayment
+    Route::get('make_payment/{id}', [InvoiceController::class, 'payment'])->name('make_payment');
+    Route::post('make_payment_store/{id}', [InvoiceController::class, 'payment_store']);
+    // Route::get('payment_no_updates', [InvoiceController::class, 'payment_no_updates']);
+    Route::get('cash_voucher_edit/{id}', [InvoiceController::class, 'payment_edit']);
+    Route::post('payment_update/{id}', [InvoiceController::class, 'payment_update'])->name('payment_update');
+    Route::get('cash_voucher/{make_payment}', [InvoiceController::class, 'voucherView'])->name('voucher_view');
 
     //item
     Route::get('items', [ItemController::class, 'index'])->middleware('isCashier');
@@ -163,6 +198,7 @@ Route::middleware('auth')->group(function () {
     //report
     Route::get('report', [ReportController::class, 'report_invoice'])->middleware('isBranchManager');
     Route::get('report_item', [ReportController::class, 'report_item'])->middleware('isBranchManager');
+    Route::get('report_clinic_item', [ReportController::class, 'report_clinic_item'])->middleware('isBranchManager');
     Route::get('report_expense', [ReportController::class, 'reportExpense'])->middleware('isBranchManager');
     Route::get('doctor', [ReportController::class, 'doctor'])->middleware('isBranchManager');
     Route::get('doctorDetail/{id}', [ReportController::class, 'doctorDetail'])->middleware('isBranchManager');
@@ -178,6 +214,7 @@ Route::middleware('auth')->group(function () {
     // Route::get('doctor_search', [ReportController::class, 'doctorSearch'])->middleware('isAdmin');
     Route::get('doctor_search', [ReportController::class, 'doctorSearch'])->middleware('isBranchManager');
     Route::get('item_search', [ReportController::class, 'itemSearch'])->middleware('isBranchManager');
+    Route::get('clinic_item_search', [ReportController::class, 'ClinicItemSearch'])->middleware('isBranchManager');
     Route::get('doctorDetailSearch/{id}', [ReportController::class, 'doctorDetailSearch'])->middleware('isBranchManager');
     Route::get('/profit/search',  [ReportController::class, 'profitSearch'])->name('profitSearch');
 

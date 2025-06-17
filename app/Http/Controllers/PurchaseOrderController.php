@@ -8,6 +8,7 @@ use App\Models\PO_sells;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use App\Models\PoMakePayment;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\DB;
 
@@ -222,5 +223,125 @@ class PurchaseOrderController extends Controller
         $purchase_order = PurchaseOrder::find($id);
         $purchase_sells = PO_sells::where('invoiceid', $id)->get();
         return view('purchase_order.purchase_order_details', compact('purchase_order', 'purchase_sells'));
+    }
+
+
+    // PO Payment
+
+    public function po_payment($id)
+    {
+        $po_make_payments = PurchaseOrder::where('id', $id)->first();
+        // dd($po_make_payments);
+        $po_payments = PoMakePayment::where('po_id', $id)
+            ->where('po_no', '!=', null)
+            ->get();
+        $payments_number = PoMakePayment::latest()->first();
+        return view('purchase_order.po_payment', compact('po_make_payments', 'po_payments', 'payments_number'));
+    }
+
+
+
+    public function po_payment_store(Request $request, $id)
+    {
+
+        if ($request->remain_balance == '0') {
+            return redirect()->back()->with('error', 'Remaining Balance is 0 , Nothing To Pay!');
+        }
+
+        $make_payments = new PoMakePayment();
+
+        $po = PurchaseOrder::where('id', $id)->first();
+
+        $make_payments->amount = $request->amount;
+        $make_payments->note = $request->note;
+        $make_payments->po_no = $request->po_no;
+        $make_payments->po_id = $po->id;
+        $make_payments->location = $request->branch;
+        $make_payments->payment_date = $request->payment_date;
+        $make_payments->cash_back = $request->cash_back;
+        // $invoice->cash_back += $request->cash_back;
+        $make_payments->save();
+
+        //end substract receivable deposit when make makepayment
+
+
+        $po->deposit = $request->amount + $po->deposit;
+        $po->remain_balance = $po->remain_balance - ($request->amount - $request->cash_back);
+        $po->update();
+
+
+
+        return redirect(url('purchase_order_manage'))->with('success', 'Payment Added Successfull!');
+    }
+
+
+
+
+
+    public function po_payment_edit($id)
+    {
+        $make_payments = PoMakePayment::where('id', $id)->first();
+
+        if (!$make_payments) {
+            return redirect()->back()->with('error', 'Payment not found!');
+        }
+
+        $po = PurchaseOrder::where('id', $make_payments->po_id)->first();
+        // dd($invoice);
+
+        if (!$po) {
+            return redirect()->back()->with('error', 'PO not found!');
+        }
+
+        return view('purchase_order.po_payment_edit', compact('make_payments', 'po'));
+    }
+
+
+
+
+    public function po_payment_update($id, Request $request)
+    {
+        $make_payments = PoMakePayment::where('id', $id)->first();
+
+        if (!$make_payments) {
+            return redirect()->back()->with('error', 'Payment not found!');
+        }
+
+        $old_amount = $make_payments->amount;
+        $old_cash_back = $make_payments->cash_back;
+
+        $po = PurchaseOrder::where('id', $make_payments->po_id)->first();
+
+        if (!$po) {
+            return redirect()->back()->with('error', 'Invoice not found!');
+        }
+
+        // Update payment info
+        $make_payments->amount = $request->amount;
+        $make_payments->note = $request->note;
+        $make_payments->po_no = $request->po_no;
+        $make_payments->location = $request->branch;
+        $make_payments->payment_date = $request->payment_date;
+        $make_payments->cash_back = $request->cash_back;
+        $make_payments->save();
+
+        // Adjust invoice values
+        $po->deposit = $po->deposit - $old_amount + $request->amount;
+        $po->remain_balance = $po->remain_balance + ($old_amount - $old_cash_back) - ($request->amount - $request->cash_back);
+        $po->update();
+
+        return redirect()->route('po_make_payment', $make_payments->po_id)->with('success', 'Payment Updated Successfully!');
+    }
+
+
+    public function PovoucherView(PoMakePayment $make_payment)
+    {
+        $po = PurchaseOrder::where('id', $make_payment->po_id)->orWhere('id', $make_payment->invoice_record)->first();
+        // $payment_methods = InvoicePaymentMethod::where('invoice_id', $invoice->id)->get();
+        return view('purchase_order.po_voucher_view', [
+            'po' => $po,
+            'make_payment' => $make_payment,
+            // 'payment_methods' => $payment_methods,
+        ]);
     }
 }

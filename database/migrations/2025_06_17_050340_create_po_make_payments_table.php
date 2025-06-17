@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('po_make_payments', function (Blueprint $table) {
+            $table->id();
+            $table->string('po_id')->nullable();
+            $table->string('po_no')->nullable();
+            $table->string('payment_date', 191)->nullable();
+            $table->string('amount', 191)->nullable();
+            $table->string('cash_back', 191)->nullable();
+            $table->string('note', 191)->nullable();
+            $table->string('location')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('po_make_payments');
+    }
+};

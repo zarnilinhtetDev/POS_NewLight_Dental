@@ -330,6 +330,8 @@ class ReportController extends Controller
         return view('report.report_purchase_return', compact('pos', 'total'));
     }
 
+    //Treatment Items Report
+
     public function report_item()
     {
 
@@ -359,6 +361,47 @@ class ReportController extends Controller
 
         return view('report.report_item', compact('search_items', 'search_total', 'search_total_2'));
     }
+
+
+    // Clinic Items Report By Thu Zar
+
+
+    public function report_clinic_item()
+    {
+
+        $items = Item::whereBetween('created_at', [
+            Carbon::now()->startOfMonth(),
+            Carbon::now()->endOfMonth()
+        ])
+            ->where('item_unit', 'Clinic')
+            ->get();
+        $total = $items->sum('buy_price') + $items->sum('service_buy_price');
+        $total_2 = $items->sum('sale_price');
+        // dd($total);
+
+        return view('report.report_clinic_item', compact('items', 'total', 'total_2'));
+    }
+
+
+    public function ClinicItemSearch(Request $request)
+    {
+
+        $start_date = Carbon::parse($request->input('start_date'))->format('Y-m-d');
+        $end_date = Carbon::parse($request->input('end_date'))->format('Y-m-d');
+
+        $search_items = Item::whereDate('created_at', '>=', $start_date)
+            ->whereDate('created_at', '<=', $end_date)
+            ->where('item_unit', 'Clinic')
+            ->get();
+
+
+        $search_total = $search_items->sum('buy_price') + $search_items->sum('service_buy_price');
+        $search_total_2 = $search_items->sum('sale_price');
+
+        return view('report.report_clinic_item', compact('search_items', 'search_total', 'search_total_2'));
+    }
+
+
 
 
     public function monthly_invoice_search(Request $request)
