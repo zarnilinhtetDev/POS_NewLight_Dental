@@ -91,9 +91,19 @@
                     </div>
                 @endif
 
+                @php
+                    $userPermissions = [];
+                    if (auth()->user()->permission) {
+                        $decodedPermissions = json_decode(auth()->user()->permission, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            $userPermissions = $decodedPermissions;
+                        }
+                    }
+                @endphp
+
                 <div class="ml-2 container-fluid">
                     <div class="row">
-                        @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
+                        @if (in_array('Dashboard', $userPermissions) || auth()->user()->is_admin == '1')
                             <div class="mr-auto col"> <button type="button" class="mr-auto btn btn-primary "
                                     data-toggle="modal" data-target="#modal-lg">
                                     Register New Location
@@ -103,12 +113,14 @@
                     <div class="modal fade" id="modal-lg">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <div class="modal-header">
-                                    <h4 class="modal-title"> Register Location </h4>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
+                                @if (in_array('Location Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                    <div class="modal-header">
+                                        <h4 class="modal-title"> Register Location </h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                @endif
                                 <div class="modal-body">
                                     <form action="{{ url('warehouse_register') }}" method="POST">
                                         @csrf
@@ -178,14 +190,19 @@
                                                     <td>
                                                         <div class="row">
 
+                                                            @if (in_array('Location Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                                <a href="{{ url('warehouse_Edit', $warehouse->id) }}"
+                                                                    title="Location Edit"
+                                                                    class="mx-2 btn btn-success"><i
+                                                                        class="fa-solid fa-pen-to-square"></i></a>
+                                                            @endif
 
-                                                            <a href="{{ url('warehouse_Edit', $warehouse->id) }}"
-                                                                title="Location Edit" class="mx-2 btn btn-success"><i
-                                                                    class="fa-solid fa-pen-to-square"></i></a>
-                                                            <a href="{{ url('warehouse_Delete', $warehouse->id) }}"
-                                                                title="Location Delete" class="btn btn-danger"
-                                                                onclick="alert('Are you sure you want to delete this Warehouse ?')"><i
-                                                                    class="fa-solid fa-trash"></i></a>
+                                                            @if (in_array('Location Delete', $userPermissions) || auth()->user()->is_admin == '1')
+                                                                <a href="{{ url('warehouse_Delete', $warehouse->id) }}"
+                                                                    title="Location Delete" class="btn btn-danger"
+                                                                    onclick="alert('Are you sure you want to delete this Warehouse ?')"><i
+                                                                        class="fa-solid fa-trash"></i></a>
+                                                            @endif
 
 
                                                         </div>

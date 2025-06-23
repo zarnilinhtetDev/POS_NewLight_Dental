@@ -104,6 +104,16 @@
                                 </button>
                             </div>
                         @endif
+
+                        @php
+                            $userPermissions = [];
+                            if (auth()->user()->permission) {
+                                $decodedPermissions = json_decode(auth()->user()->permission, true);
+                                if (json_last_error() === JSON_ERROR_NONE) {
+                                    $userPermissions = $decodedPermissions;
+                                }
+                            }
+                        @endphp
                         <div class="card ">
                             <div class="card-header">
                                 <h3 class="card-title">Purchase Order</h3>
@@ -117,7 +127,7 @@
                                             <th>Purchase Order Number</th>
                                             <th>Supplier Name</th>
                                             <th>Receiving Mode</th>
-                                            <!-- <th>Phone Number</th> -->
+                                            <th>Location</th>
 
                                             <th>Total</th>
 
@@ -131,87 +141,55 @@
                                             $no = '1';
                                         @endphp
 
-                                        @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
-                                            @foreach ($po as $pos)
-                                                <tr>
 
-                                                    <td>{{ $no }}</td>
-                                                    <td>{{ $pos->quote_no }}</td>
+                                        @foreach ($po as $pos)
+                                            <tr>
 
-                                                    <td>{{ $pos->supplier->name ?? 'N/A' }}</td>
-                                                    <td>{{ $pos->balance_due }}</td>
+                                                <td>{{ $no }}</td>
+                                                <td>{{ $pos->quote_no }}</td>
+
+                                                <td>{{ $pos->supplier->name ?? 'N/A' }}</td>
+                                                <td>{{ $pos->balance_due }}</td>
+                                                <td>
+                                                    {{ $pos->warehouse->name ?? 'N/A' }}
+                                                </td>
 
 
-                                                    <td>{{ $pos->total }}</td>
-                                                    <td>
-
+                                                <td>{{ $pos->total }}</td>
+                                                <td>
+                                                    @if (in_array('PO Payment', $userPermissions) || auth()->user()->is_admin == '1')
                                                         <a href="{{ url('po_make_payment', $pos->id) }}"
                                                             class="btn btn-warning btn-sm text-white mb-1"><i
                                                                 class="fa-solid fa-money-check-dollar"></i>
                                                         </a>
+                                                    @endif
 
+                                                    @if (in_array('Purchase Order Details', $userPermissions) || auth()->user()->is_admin == '1')
                                                         <a href="{{ route('purchase_order_details', $pos->id) }}"
                                                             class="btn btn-primary btn-sm"><i
                                                                 class="fa-solid fa-eye"></i></a>
+                                                    @endif
 
+
+                                                    @if (in_array('Purchase Order Edit', $userPermissions) || auth()->user()->is_admin == '1')
                                                         <a href="{{ route('purchase_order_edit', $pos->id) }}"
                                                             class="btn btn-success btn-sm"><i
                                                                 class="fa-solid fa-pen-to-square"></i></a>
+                                                    @endif
 
-
+                                                    @if (in_array('Purchase Order Delete', $userPermissions) || auth()->user()->is_admin == '1')
                                                         <a href="{{ url('purchase_order_delete', $pos->id) }}"
                                                             class="btn btn-danger btn-sm"
                                                             onclick="return confirm('Are you sure you want to delete this Purchase Order ?')"><i
                                                                 class="fa-solid fa-trash"></i></a>
-                                                    </td>
-                                                </tr>
-                                                @php
-                                                    $no++;
-                                                @endphp
-                                            @endforeach
-                                        @elseif (Auth::user()->type == 'Warehouse')
-                                            @foreach ($po as $pos)
-                                                @foreach ($pos->po_sells as $sell)
-                                                    @if ($sell->warehouse == Auth::user()->level)
-                                                        <tr>
-
-                                                            <td>{{ $no }}</td>
-                                                            <td>{{ $pos->quote_no }}</td>
-
-                                                            <td>{{ $pos->supplier->name ?? 'N/A' }}</td>
-
-
-                                                            <td>{{ $pos->total }}</td>
-                                                            <td>
-
-                                                                <a href="{{ url('po_make_payment', $pos->id) }}"
-                                                                    class="btn btn-warning btn-sm text-white mb-1"><i
-                                                                        class="fa-solid fa-money-check-dollar"></i>
-                                                                </a>
-
-
-                                                                <a href="{{ route('purchase_order_details', $pos->id) }}"
-                                                                    class="btn btn-primary btn-sm"><i
-                                                                        class="fa-solid fa-eye"></i></a>
-
-                                                                <a href="{{ route('purchase_order_edit', $pos->id) }}"
-                                                                    class="btn btn-success btn-sm"><i
-                                                                        class="fa-solid fa-pen-to-square"></i></a>
-
-
-                                                                <a href="{{ url('purchase_order_delete', $pos->id) }}"
-                                                                    class="btn btn-danger btn-sm"
-                                                                    onclick="return confirm('Are you sure you want to delete this Purchase Order ?')"><i
-                                                                        class="fa-solid fa-trash"></i></a>
-                                                            </td>
-                                                        </tr>
-                                                        @php
-                                                            $no++;
-                                                        @endphp
                                                     @endif
-                                                @endforeach
-                                            @endforeach
-                                        @endif
+                                                </td>
+                                            </tr>
+                                            @php
+                                                $no++;
+                                            @endphp
+                                        @endforeach
+
                                     </tbody>
                                 </table>
                             </div>

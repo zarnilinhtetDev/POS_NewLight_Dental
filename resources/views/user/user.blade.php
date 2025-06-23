@@ -60,6 +60,17 @@
             </ul>
         </nav>
         @include('layouts.sidebar')
+
+
+        @php
+            $userPermissions = [];
+            if (auth()->user()->permission) {
+                $decodedPermissions = json_decode(auth()->user()->permission, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $userPermissions = $decodedPermissions;
+                }
+            }
+        @endphp
         <div class="content-wrapper">
             <!-- Main content -->
             <section class="content">
@@ -85,11 +96,15 @@
                 <div class="container-fluid">
                     <div class="row  justify-content-center d-flex">
                         <!-- left column -->
+
                         <div class="col-md-12 ">
                             <!-- general form elements -->
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-lg">
-                                User Register
-                            </button>
+                            @if (in_array('User Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    data-target="#modal-lg">
+                                    User Register
+                                </button>
+                            @endif
                         </div>
 
                         <div class="modal fade" id="modal-lg">
@@ -120,7 +135,7 @@
                                                 </div>
 
 
-                                                <div class="form-group">
+                                                {{-- <div class="form-group">
                                                     <label for="type">Type</label>
                                                     <select class="form-control" name="type" id="type">
                                                         <option>Select user Type</option>
@@ -130,7 +145,7 @@
                                                         <option value="Branch Manager">Branch Manager</option>
                                                         <option value="Cashier">Cashier</option>
                                                     </select>
-                                                </div>
+                                                </div> --}}
 
                                                 {{-- <div class="form-group">
                                                     <label for="level">level</label>
@@ -140,7 +155,7 @@
                                                 </div> --}}
 
 
-                                                <div class="form-group ">
+                                                {{-- <div class="form-group ">
                                                     <label for="warehouse_id">Location<span
                                                             class="text-danger">*</span></label>
                                                     <input type="hidden" id="level" name="level">
@@ -166,7 +181,7 @@
                                                             @endforeach
                                                         @endif
                                                     </select>
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="form-group">
                                                     <label for="password">Password</label>
@@ -232,8 +247,12 @@
                                                     <td>{{ $no }}</td>
                                                     <td>{{ $showUser->name }}</td>
                                                     <td>{{ $showUser->email }}</td>
-                                                    <td>{{ $showUser->type }}</td>
                                                     <td>
+                                                        @if ($showUser->user_type_id)
+                                                            {{ $showUser->userType->name }}
+                                                        @endif
+                                                    </td>
+                                                    {{-- <td>
                                                         @if ($showUser->level == 'Default')
                                                             {{ $showUser->level }}
                                                         @else
@@ -243,19 +262,53 @@
                                                                 @endif
                                                             @endforeach
                                                         @endif
+                                                    </td> --}}
+
+                                                    <td>
+                                                        @php
+                                                            $levelIds = json_decode($showUser->level, true); //
+                                                        @endphp
+
+                                                        @if (is_array($levelIds) && count($levelIds) > 0)
+                                                            @foreach ($levelIds as $key => $levelId)
+                                                                @foreach ($branchs as $branch)
+                                                                    @if ($levelId == $branch->id)
+                                                                        {{ $branch->name }}
+                                                                        @if ($key < count($levelIds) - 1)
+                                                                            ,
+                                                                        @endif
+                                                                    @endif
+                                                                @endforeach
+                                                            @endforeach
+                                                        @else
+                                                            {{ $showUser->level }}
+                                                        @endif
                                                     </td>
                                                     <td>{{ $showUser->created_at }}</td>
                                                     <td>
-                                                        <a href="{{ url('userShow', $showUser->id) }}"
-                                                            class="btn btn-success">
-                                                            <i class="fa-solid fa-pen-to-square"></i>
 
-                                                        </a>
+                                                        @if (in_array('User Permission', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('user_permission', $showUser->id) }}"
+                                                                class="btn btn-warning">
+                                                                <i
+                                                                    class="fa-solid fa-person-circle-question text-white"></i>
 
-                                                        <a href="{{ url('delete_user', $showUser->id) }}"
-                                                            class="btn btn-danger"
-                                                            onclick="return confirm('Are you sure you want to delete this user ?')">
-                                                            <i class="fa-solid fa-trash"></i></a>
+                                                            </a>
+                                                        @endif
+                                                        @if (in_array('User Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('userShow', $showUser->id) }}"
+                                                                class="btn btn-success">
+                                                                <i class="fa-solid fa-pen-to-square"></i>
+
+                                                            </a>
+                                                        @endif
+
+                                                        @if (in_array('User Delete', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('delete_user', $showUser->id) }}"
+                                                                class="btn btn-danger"
+                                                                onclick="return confirm('Are you sure you want to delete this user ?')">
+                                                                <i class="fa-solid fa-trash"></i></a>
+                                                        @endif
 
                                                     </td>
                                                 </tr>

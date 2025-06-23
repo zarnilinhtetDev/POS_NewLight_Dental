@@ -128,6 +128,18 @@
                         </button>
                     </div>
                 @endif
+
+                @php
+                    $userPermissions = [];
+                    if (auth()->user()->permission) {
+                        $decodedPermissions = json_decode(auth()->user()->permission, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            $userPermissions = $decodedPermissions;
+                        }
+                    }
+                @endphp
+
+
                 <div class="container-fluid">
                     <div class="ml-2 row d-flex">
                         <form action="{{ route('file-import') }}" method="POST" enctype="multipart/form-data">
@@ -214,23 +226,34 @@
                                                     </td>
 
                                                     <td>
-                                                        <a href="{{ url('item_details', $item->id) }}"
-                                                            class="btn btn-primary btn-sm"><i
-                                                                class="fa-solid fa-eye"></i></a>
 
-                                                        <a href="{{ url('item_edit', $item->id) }}"
-                                                            class="btn btn-success btn-sm"><i
-                                                                class="fa-solid fa-pen-to-square"></i></a>
-                                                        @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin' || auth()->user()->type == 'Branch Manager')
+
+                                                        @if (in_array('Treatment Details', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('item_details', $item->id) }}"
+                                                                class="btn btn-primary btn-sm"><i
+                                                                    class="fa-solid fa-eye"></i></a>
+                                                        @endif
+
+                                                        @if (in_array('Treatment Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('item_edit', $item->id) }}"
+                                                                class="btn btn-success btn-sm"><i
+                                                                    class="fa-solid fa-pen-to-square"></i></a>
+                                                        @endif
+
+
+                                                        @if (in_array('Treatment Delete', $userPermissions) || auth()->user()->is_admin == '1')
                                                             <a href="{{ url('item_delete', $item->id) }}"
                                                                 class="btn btn-danger btn-sm"
                                                                 onclick="return confirm('Are you sure you want to delete this Item ?')"><i
                                                                     class="fa-solid fa-trash"></i></a>
                                                         @endif
 
-                                                        <a href="{{ url('in_out', $item->id) }}"
-                                                            class="mt-1 btn btn-info btn-sm">In/Out
-                                                            History </a>
+
+                                                        @if (in_array('Treatment In/Out', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('in_out', $item->id) }}"
+                                                                class="mt-1 btn btn-info btn-sm">In/Out
+                                                                History </a>
+                                                        @endif
 
                                                     </td>
                                                 </tr>

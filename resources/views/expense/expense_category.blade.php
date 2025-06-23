@@ -94,12 +94,24 @@
                     </div>
                 @endif
 
+                @php
+                    $userPermissions = [];
+                    if (auth()->user()->permission) {
+                        $decodedPermissions = json_decode(auth()->user()->permission, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            $userPermissions = $decodedPermissions;
+                        }
+                    }
+                @endphp
+
                 <div class="ml-2 container-fluid">
                     <div class="row">
-                        <div class="mr-auto col"> <button type="button" class="mr-auto btn btn-primary "
-                                data-toggle="modal" data-target="#modal-lg">
-                                Create Expense Category
-                        </div>
+                        @if (in_array('Expense Category Register', $userPermissions) || auth()->user()->is_admin == '1')
+                            <div class="mr-auto col"> <button type="button" class="mr-auto btn btn-primary "
+                                    data-toggle="modal" data-target="#modal-lg">
+                                    Create Expense Category
+                            </div>
+                        @endif
                     </div>
                     <div class="modal fade" id="modal-lg">
                         <div class="modal-dialog modal-lg">
@@ -194,11 +206,13 @@
                                             <td>{{ $cat->created_at->format('d M Y') }}
                                             </td>
                                             <td>
-                                                <a href="{{ url('expense_category_edit', $cat->id) }}"
-                                                    class="btn btn-success btn-sm"><i
-                                                        class="fa-solid fa-pen-to-square"></i></a>
+                                                @if (in_array('Expense Category Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                    <a href="{{ url('expense_category_edit', $cat->id) }}"
+                                                        class="btn btn-success btn-sm"><i
+                                                            class="fa-solid fa-pen-to-square"></i></a>
+                                                @endif
 
-                                                @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin' || auth()->user()->type == 'Branch Manager')
+                                                @if (in_array('Expense Category Delete', $userPermissions) || auth()->user()->is_admin == '1')
                                                     <a href="{{ url('expense_category_delete', $cat->id) }}"
                                                         class="btn btn-danger btn-sm"
                                                         onclick="return confirm('Are you sure you want to delete this Expense Category ?')"><i

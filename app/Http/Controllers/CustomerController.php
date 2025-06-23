@@ -12,11 +12,12 @@ class CustomerController extends Controller
     //index
     public function index()
     {
-        if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
+        $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+        if (auth()->user()->is_admin == '1') {
             $customers = Customer::latest()->get();
             $branches = Warehouse::latest()->get();
         } else {
-            $customers = Customer::where('branch', auth()->user()->level)->latest()->get();
+            $customers = Customer::where('branch', $warehousePermission)->latest()->get();
             $branches = Warehouse::latest()->get();
         }
         return view('customer.customer', compact('customers', 'branches'));

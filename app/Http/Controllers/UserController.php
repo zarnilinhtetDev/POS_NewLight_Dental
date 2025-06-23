@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 
 use App\Models\Credit;
+use App\Models\UserType;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use App\Models\UploadCoinHistory;
-use App\Models\Warehouse;
 use Illuminate\Database\Eloquent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -37,8 +38,8 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|regex:/^[a-zA-Z0-9_.+-]+@gmail.com$/i',
             'password' => 'required',
-            'type' => 'required',
-            'level' => 'required'
+            // 'type' => 'required',
+            // 'level' => 'required'
         ]);
         $existingUser = User::where('email', $data['email'])->first();
         // return $data['userRole'];
@@ -61,8 +62,8 @@ class UserController extends Controller
             $user = new User();
             $user->name = $data['name'];
             $user->email = $data['email'];
-            $user->type = $data['type'];
-            $user->level = $data['level'];
+            // $user->type = $data['type'];
+            // $user->level = $data['level'];
             $user->password = Hash::make($data['password']);
             $user->save();
 
@@ -104,8 +105,8 @@ class UserController extends Controller
         // Update user's information
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->type = $request->type;
-        $user->level = $request->level;
+        // $user->type = $request->type;
+        // $user->level = $request->level;
 
         // Update password if provided
         if ($request->filled('new_password')) {
@@ -128,5 +129,29 @@ class UserController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+
+    public function permission($id)
+    {
+
+        $userShow = User::find($id);
+        $branchs = Warehouse::all();
+        $userTypes = UserType::all();
+        return view('user.user_permission', compact('userShow', 'branchs', 'userTypes'));
+    }
+
+    public function permissionStore($id, Request $request)
+    {
+
+        $userShow = User::find($id);
+
+        $userShow->user_type_id = $request->user_type_id;
+        $userShow->level = $request->input('level', []);
+        $userShow->is_admin = $request->is_admin ?? 0;
+        $userShow->permission = $request->input('permission', []);
+        $userShow->update();
+
+        return redirect(url('user'))->with('success', 'User Permission Set is successful');
     }
 }

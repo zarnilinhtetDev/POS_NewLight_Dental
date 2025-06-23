@@ -65,6 +65,10 @@
         </form>
     </nav>
 
+    @php
+        $userPermissions = auth()->user()->level ? json_decode(auth()->user()->level) : [];
+    @endphp
+
     <div class="container-fluid " id="content">
         <hr>
         <div class="modal fade" id="modal-xl">
@@ -161,7 +165,7 @@
                             <option value="Consignment Terms">Consignment Terms</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    {{-- <div class="col-md-3">
                         @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
                             <div class="form-group">
                                 <label for="branch">Location<span class="text-danger">*</span></label>
@@ -180,7 +184,7 @@
                                     value="{{ auth()->user()->level }}" required>
                             </div>
                         @endif
-                    </div>
+                    </div> --}}
                     <input type="hidden" name="quote_category" id="quote_category" value="POS">
                 </div>
                 <div class="content-wrapper">
@@ -235,6 +239,9 @@
                                                         @endif
                                                     </div>
                                                 </div>
+
+
+
                                                 <div class="row mt-3">
                                                     <div class="col-md-3">
                                                         <div class="form-group">
@@ -295,7 +302,7 @@
                                                 </div> --}}
                                         </div>
                                         <hr class="mt-3">
-                                        @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
+                                        {{-- @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
                                             <div class="mt-4 frmSearch col-md-3">
                                                 <div class="frmSearch col-sm-12">
                                                     <span style="font-weight:bolder">
@@ -335,22 +342,53 @@
 
 
                                             </div>
-                                        @endif
+                                        @endif --}}
 
-                                        <div class="mt-4 frmSearch col-md-3">
-                                            <div class="frmSearch col-sm-12">
-                                                <span style="font-weight:bolder">
-                                                    <label for="cst"
-                                                        class="caption">{{ trans('Search Item Name ') }}&nbsp;</label>
-                                                </span>
-                                                <input type="text" class="form-control productname typeahead"
-                                                    name="itemname" id='productname' autocomplete="off"
-                                                    placeholder="Search Item Name ">
+                                        <div class="row mb-3">
+                                            {{-- Keep your existing code here --}}
 
-                                                <div id="customer-box-result"></div>
+
+                                            @if (auth()->user()->is_admin == '1')
+                                                <div class="col-md-3"> {{-- changed from col-md-3 to col-md-4 --}}
+                                                    <label for="location" style="font-weight:bolder">
+                                                        Location<span class="text-danger fw-bold">*</span></label>
+                                                    <select name="location" id="location" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $warehouse)
+                                                            <option value="{{ $warehouse->id }}">
+                                                                {{ $warehouse->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @else
+                                                <div class="col-md-3"> {{-- changed from col-md-3 to col-md-4 --}}
+                                                    <label for="location" style="font-weight:bolder">Location
+                                                        <span class="text-danger fw-bold">*</span>
+                                                    </label>
+                                                    <select name="location" id="location" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $branch)
+                                                            @if (in_array((string) $branch->id, $userPermissions))
+                                                                <option value="{{ $branch->id }}">
+                                                                    {{ $branch->name }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @endif
+
+                                            <div class="col-md-3 mt-md-0 mt-3"> {{-- changed from col-md-3 to col-md-4 --}}
+                                                <div class="frmSearch col-sm-12">
+                                                    <label for="cst" class="caption"
+                                                        style="font-weight:bolder">{{ trans('Search Item Name ') }}</label>
+                                                    <input type="text" class="form-control productname typeahead"
+                                                        name="itemname" id='productname' autocomplete="off"
+                                                        placeholder="Search Item Name ">
+                                                    <div id="customer-box-result"></div>
+                                                </div>
                                             </div>
-
-
                                         </div>
 
 
@@ -1251,6 +1289,38 @@
         <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
         <!-- AdminLTE App -->
         <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationSelect = document.getElementById('location') || document.getElementById(
+                'location');
+            const doctorSelect = document.getElementById('doctor_id');
+
+            locationSelect.addEventListener('change', function() {
+                const locationId = this.value;
+
+                if (locationId) {
+                    // Fetch doctors for the selected location
+                    fetch(`/get-doctors?location=${locationId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                            data.forEach(doctor => {
+                                const option = document.createElement('option');
+                                option.value = doctor.id;
+                                option.textContent = doctor.name;
+                                option.setAttribute('data-branch', doctor.branch);
+                                doctorSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear doctors if no location selected
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </HTML>

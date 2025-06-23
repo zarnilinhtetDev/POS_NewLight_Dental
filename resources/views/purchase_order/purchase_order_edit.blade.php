@@ -122,7 +122,7 @@
                 @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
                     <div class="frmSearch col-md-3 col-sm-6">
                         <label for="location" style="font-weight:bolder">Location</label>
-                        <select name="location" id="location" class="mb-4 form-control" required>
+                        <select name="branch" id="location" class="mb-4 form-control" required>
 
                             @foreach ($warehouses as $warehouse)
                                 <option value="{{ $warehouse->id }}" @if ($warehouse->id == $purchase_orders->location)  @endif
@@ -135,7 +135,7 @@
                 @elseif (Auth::user()->type == 'Warehouse')
                     <div class="frmSearch col-md-3 col-sm-6" style="display: none;">
                         <label for="location" style="font-weight:bolder"> Location</label>
-                        <select name="location" id="location" class="mb-4 form-control" required>
+                        <select name="branch" id="location" class="mb-4 form-control" required>
 
                             @foreach ($warehouses as $warehouse)
                                 @if (auth()->user()->level == $warehouse->id)
@@ -207,15 +207,13 @@
                                         <div id="customerpanel" class="inner-cmp-pnl">
 
                                             <div class="form-group row">
-                                                <div class="frmSearch col-sm-12">
-                                                    <span style="font-weight:bolder">
-
-                                                        <div class="frmSearch col-sm-4" id="supplier_box">
-                                                            <span style="font-weight:bolder">
-                                                                <label for="cst"
-                                                                    class="caption">{{ trans('Supplier Name') }}</label>
-                                                            </span>
-
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="supplier_id" class="font-weight-bold"
+                                                                style="font-weight: bolder !important;">
+                                                                {{ trans('Supplier Name') }}
+                                                            </label>
                                                             <select name="supplier_id" id="supplier_id"
                                                                 class="form-control">
                                                                 <option value="" selected disabled>
@@ -227,17 +225,54 @@
                                                                     </option>
                                                                 @endforeach
                                                             </select>
-
                                                         </div>
-                                                        @if ($purchase_orders->balance_due == 'PO')
-                                                        @endif
-                                                    </span>
+                                                    </div>
 
+                                                    @if ($purchase_orders->balance_due == 'PO')
+                                                    @endif
 
-
-
-                                                    <div id="customer-box-result"></div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            @if (auth()->user()->is_admin == '1')
+                                                                <label for="location_admin" class="font-weight-bold"
+                                                                    style="font-weight: bolder !important;">
+                                                                    Location<span class="text-danger">*</span>
+                                                                </label>
+                                                                <select name="branch" id="location_admin"
+                                                                    class="form-control" required>
+                                                                    <option value="">Select Location</option>
+                                                                    @foreach ($warehouses as $warehouse)
+                                                                        <option value="{{ $warehouse->id }}"
+                                                                            {{ $warehouse->id == $purchase_orders->branch ? 'selected' : '' }}>
+                                                                            {{ $warehouse->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @else
+                                                                <label for="location_user" class="font-weight-bold"
+                                                                    style="font-weight: bolder !important;">
+                                                                    Location<span class="text-danger">*</span>
+                                                                </label>
+                                                                <select name="branch" id="location_user"
+                                                                    class="form-control" required>
+                                                                    <option value="">Select Location</option>
+                                                                    @foreach ($warehouses as $branch)
+                                                                        @if (in_array($branch->id, $warehousePermission))
+                                                                            <option value="{{ $branch->id }}"
+                                                                                {{ $branch->id == $purchase_orders->branch ? 'selected' : '' }}>
+                                                                                {{ $branch->name }}
+                                                                            </option>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </select>
+                                                            @endif
+                                                        </div>
+                                                    </div>
                                                 </div>
+
+
+
+                                                <div id="customer-box-result"></div>
                                             </div>
                                             <input type="hidden" id="service_id" name="service_id" value="0">
                                             <input type="hidden" name="advisor_name"
@@ -1021,6 +1056,41 @@
 
                     $("#supplier_box").hide();
 
+                }
+            });
+        });
+    </script>
+
+
+
+    //get supplier
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationSelect = document.getElementById('location_admin') || document.getElementById(
+                'location_user');
+            const doctorSelect = document.getElementById('supplier_id');
+
+            locationSelect.addEventListener('change', function() {
+                const locationId = this.value;
+
+                if (locationId) {
+                    // Fetch suppliers for the selected location
+                    fetch(`/get-suppliers?location=${locationId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                            data.forEach(supplier => {
+                                const option = document.createElement('option');
+                                option.value = supplier.id;
+                                option.textContent = supplier.name;
+                                option.setAttribute('data-branch', supplier.branch);
+                                doctorSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear suppliers if no location selected
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
                 }
             });
         });

@@ -152,7 +152,7 @@
                                                     <label for="cst"
                                                         class="caption">{{ trans('Supplier Name') }}</label>
                                                 </span>
-                                                <select name="supplier_id" id="" class="form-control">
+                                                <select name="supplier_id" id="supplier_id" class="form-control">
                                                     <option value="" selected disabled>Choose Supplier
                                                     </option>
                                                     @foreach ($suppliers as $supplier)
@@ -163,7 +163,7 @@
                                             </div>
 
 
-
+                                            {{--
                                             @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
                                                 <div class="frmSearch col-sm-4">
                                                     <label for="location" style="font-weight:bolder">
@@ -190,6 +190,37 @@
                                                                 <option value="{{ $warehouse->id }}" selected>
                                                                     {{ $warehouse->name }}
                                                                 </option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @endif --}}
+
+
+                                            @if (auth()->user()->is_admin == '1')
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">
+                                                        Location<span class="text-danger fw-bold">*</span></label>
+                                                    <select name="branch" id="location_admin" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $warehouse)
+                                                            <option value="{{ $warehouse->id }}">
+                                                                {{ $warehouse->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @else
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">Location<span
+                                                            class="text-danger fw-bold">*</span></label>
+                                                    <select name="branch" id="location_user" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $branch)
+                                                            @if (in_array($branch->id, $warehousePermission))
+                                                                <option value="{{ $branch->id }}">
+                                                                    {{ $branch->name }}</option>
                                                             @endif
                                                         @endforeach
                                                     </select>
@@ -840,6 +871,39 @@
                     $("#supplier_box").show(); // Show the supplier_box
                 } else {
                     $("#supplier_box").hide(); // Hide the supplier_box if balance_due is not empty
+                }
+            });
+        });
+    </script>
+
+    {{-- //get supplier --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationSelect = document.getElementById('location_admin') || document.getElementById(
+                'location_user');
+            const doctorSelect = document.getElementById('supplier_id');
+
+            locationSelect.addEventListener('change', function() {
+                const locationId = this.value;
+
+                if (locationId) {
+                    // Fetch suppliers for the selected location
+                    fetch(`/get-suppliers?location=${locationId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                            data.forEach(supplier => {
+                                const option = document.createElement('option');
+                                option.value = supplier.id;
+                                option.textContent = supplier.name;
+                                option.setAttribute('data-branch', supplier.branch);
+                                doctorSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear suppliers if no location selected
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
                 }
             });
         });

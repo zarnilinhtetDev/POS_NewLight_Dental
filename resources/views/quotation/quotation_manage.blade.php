@@ -113,6 +113,16 @@
                                 </button>
                             </div>
                         @endif
+
+                        @php
+                            $userPermissions = [];
+                            if (auth()->user()->permission) {
+                                $decodedPermissions = json_decode(auth()->user()->permission, true);
+                                if (json_last_error() === JSON_ERROR_NONE) {
+                                    $userPermissions = $decodedPermissions;
+                                }
+                            }
+                        @endphp
                         <div class="card ">
                             <div class="card-header">
                                 <h3 class="card-title">Quotaton List</h3>
@@ -150,22 +160,33 @@
 
                                                 <td>{{ $quotation->quote_date }}</td>
                                                 <td>{{ $quotation->total }}</td>
-                                                <td><a href="{{ url('/change_invoice', $quotation->id) }}"
-                                                        class="btn btn-primary btn-sm">Change Invoice</a></td>
                                                 <td>
-                                                    <a href="{{ url('/quotation_detail', $quotation->id) }}"
-                                                        class="btn btn-primary btn-sm"><i
-                                                            class="fa-solid fa-eye"></i></a>
+                                                    @if (in_array('Chance Invoice', $userPermissions) || auth()->user()->is_admin == '1')
+                                                        <a href="{{ url('/change_invoice', $quotation->id) }}"
+                                                            class="btn btn-primary btn-sm">Change Invoice</a>
+                                                    @endif
+                                                </td>
+                                                <td>
 
-                                                    <a href="{{ url('quotation_edit', $quotation->id) }}"
-                                                        class="btn btn-success btn-sm"><i
-                                                            class="fa-solid fa-pen-to-square"></i></a>
+                                                    @if (in_array('Quotation Details', $userPermissions) || auth()->user()->is_admin == '1')
+                                                        <a href="{{ url('/quotation_detail', $quotation->id) }}"
+                                                            class="btn btn-primary btn-sm"><i
+                                                                class="fa-solid fa-eye"></i></a>
+                                                    @endif
 
 
-                                                    <a href="{{ url('quotation_delete', $quotation->id) }}"
-                                                        class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Are you sure you want to delete this Qotation ?')"><i
-                                                            class="fa-solid fa-trash"></i></a>
+                                                    @if (in_array('Quotation Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                        <a href="{{ url('quotation_edit', $quotation->id) }}"
+                                                            class="btn btn-success btn-sm"><i
+                                                                class="fa-solid fa-pen-to-square"></i></a>
+                                                    @endif
+
+                                                    @if (in_array('Quotation Delete', $userPermissions) || auth()->user()->is_admin == '1')
+                                                        <a href="{{ url('quotation_delete', $quotation->id) }}"
+                                                            class="btn btn-danger btn-sm"
+                                                            onclick="return confirm('Are you sure you want to delete this Qotation ?')"><i
+                                                                class="fa-solid fa-trash"></i></a>
+                                                    @endif
 
                                                 </td>
 

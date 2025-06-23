@@ -20,4 +20,11 @@ class PurchaseOrder extends Model
     {
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
+
+
+    // app/Models/PurchaseOrder.php
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'branch', 'id');
+    }
 }
