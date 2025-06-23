@@ -103,7 +103,7 @@
                                             <input type="email" class="form-control" id="email" name="email"
                                                 placeholder="Enter email" required value="{{ $userShow->email }}">
                                         </div>
-                                        <div class="form-group">
+                                        {{-- <div class="form-group">
                                             <label for="type">Type</label>
                                             <select class="form-control" name="type" id="type">
                                                 <option value="{{ $userShow->type }}" selected>{{ $userShow->type }}
@@ -114,9 +114,9 @@
                                                 <option value="Branch Manager">Branch Manager</option>
                                                 <option value="Cashier">Cashier</option>
                                             </select>
-                                        </div>
+                                        </div> --}}
 
-                                        <div class="form-group">
+                                        {{-- <div class="form-group">
                                             <label for="level">Location</label>
                                             <select class="form-control" name="level" id="level">
                                                 <option value="{{ $userShow->level }}" selected>
@@ -137,7 +137,7 @@
                                                     @endforeach
                                                 @endif
                                             </select>
-                                        </div>
+                                        </div> --}}
                                         <div class="form-group">
                                             <label for="new_password">New Password</label>
                                             <input type="password" class="form-control" id="new_password"

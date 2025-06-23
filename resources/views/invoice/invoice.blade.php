@@ -60,6 +60,9 @@
                 </button>
             </div>
         @endif
+
+
+
         <div class="modal fade" id="modal-lg">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -99,7 +102,13 @@
                                         placeholder="Enter Address" name="address" required>
                                 </div>
 
-                                @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
+                                @php
+                                    $warehousePermission = auth()->user()->level
+                                        ? json_decode(auth()->user()->level, true)
+                                        : [];
+                                @endphp
+
+                                {{-- @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
                                     <div class="form-group">
                                         <label for="branch">Location<span class="text-danger">*</span></label>
                                         <select name="branch" id="" class="form-control" required>
@@ -115,10 +124,18 @@
                                 @else
                                     <div class="form-group" style="display: none;">
                                         <label for="branch">Location<span class="text-danger">*</span></label>
-                                        <input class="form-control" type="text" name="branch" id=""
-                                            value="{{ auth()->user()->level }}" required>
+
+                                        <select name="branch" id="" class="form-control" required>
+                                            @foreach ($warehouses as $branch)
+                                                @if (in_array($branch->id, $warehousePermission))
+                                                    <option value="{{ $branch->id }}">
+                                                        {{ $branch->name }}
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
                                     </div>
-                                @endif
+                                @endif --}}
 
                             </div>
 
@@ -168,9 +185,9 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    {{-- <div class="col-md-3">
                         @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
-                            <div class="form-group" style="display: none">
+                            <div class="form-group">
                                 <label for="branch">Location<span class="text-danger">*</span></label>
                                 <select name="branch" id="branch" class="form-control" required>
                                     <option selected disabled>Select Location</option>
@@ -181,13 +198,20 @@
                                 </select>
                             </div>
                         @else
-                            <div class="form-group" style="display: none;">
+                            <div class="form-group">
                                 <label for="branch">Location<span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" name="branch" id="branch"
-                                    value="{{ auth()->user()->level }}" required>
+                                <select name="branch" id="" class="form-control" required>
+                                    @foreach ($warehouses as $branch)
+                                        @if (in_array($branch->id, $warehousePermission))
+                                            <option value="{{ $branch->id }}">
+                                                {{ $branch->name }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
                             </div>
                         @endif
-                    </div>
+                    </div> --}}
 
                     <input type="hidden" name="quote_category" id="quote_category" value="Invoice">
                 </div>
@@ -261,44 +285,99 @@
                                                 </div>
                                             </div>
 
-                                            @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
-                                                <div class="frmSearch col-md-3">
-                                                    <div class="frmSearch col-sm-12">
-                                                        <span style="font-weight:bolder">
-                                                            <label for="cst"
-                                                                class="caption">{{ trans('Item Location') }}&nbsp;</label>
-                                                        </span>
-                                                        <select name="location" id="location"
-                                                            class="mb-4 form-control location" required>
-                                                            <option value="">Select Location</option>
-                                                            @foreach ($warehouses as $warehouse)
-                                                                <option value="{{ $warehouse->id }}">
-                                                                    {{ $warehouse->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
+
+
+
+                                            @if (auth()->user()->is_admin == '1')
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">
+                                                        Location<span class="text-danger fw-bold">*</span></label>
+                                                    <select name="branch" id="location" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $warehouse)
+                                                            <option value="{{ $warehouse->id }}">
+                                                                {{ $warehouse->name }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             @else
-                                                <div class="mt-4 frmSearch col-sm-2" style="display: none;">
-                                                    <div class="frmSearch col-sm-12">
-                                                        <span style="font-weight:bolder">
-                                                            <label for="cst"
-                                                                class="caption">{{ trans('Location') }}&nbsp;</label>
-                                                        </span>
-                                                        <select name="location" id="location"
-                                                            class="mb-4 form-control location" required>
-                                                            @foreach ($warehouses as $warehouse)
-                                                                @if (auth()->user()->level == $warehouse->id)
-                                                                    <option value="{{ $warehouse->id }}" selected>
-                                                                        {{ $warehouse->name }}</option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">Location<span
+                                                            class="text-danger fw-bold">*</span></label>
+                                                    <select name="branch" id="location" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $branch)
+                                                            @if (in_array($branch->id, $warehousePermission))
+                                                                <option value="{{ $branch->id }}">
+                                                                    {{ $branch->name }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             @endif
 
+                                            {{-- <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label for="doctor" style="font-weight:bolder">Doctor Name <span
+                                                            class="text-danger fw-bold">*</span></label>
+                                                    <select name="doctor_id" id="doctor_id" class="form-control"
+                                                        required>
+                                                        <option value="">Select Doctor</option>
+                                                        @if ($selectedBranch)
+                                                            @foreach ($doctors as $doctor)
+                                                                <option data-branch="{{ $doctor->branch }}"
+                                                                    value="{{ $doctor->id }}">
+                                                                    {{ $doctor->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                    @if (session('doctor_id'))
+                                                        <strong
+                                                            class="text-danger">{{ session('doctor_id') }}</strong>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            @if (auth()->user()->is_admin == '1')
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">
+                                                        Location<span class="text-danger fw-bold">*</span></label>
+                                                    <select name="location" id="location_admin" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $warehouse)
+                                                            <option value="{{ $warehouse->id }}">
+                                                                {{ $warehouse->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @else
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">Location<span
+                                                            class="text-danger fw-bold">*</span></label>
+                                                    <select name="location" id="location_user" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $branch)
+                                                            @if (in_array($branch->id, $warehousePermission))
+                                                                <option value="{{ $branch->id }}">
+                                                                    {{ $branch->name }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @endif --}}
+
+
                                         </div>
+
+
+
+
+
                                         <div class="frmSearch col-sm-12">
                                             <input type='hidden' name='customer_id' id="customer_id"
                                                 class="form-control">
@@ -629,53 +708,81 @@
 
     {{-- Customer Name Search --}}
     <script>
+        // $(document).ready(function() {
+        //     var path = "{{ route('customer_service_search') }}";
+        //     $('#customer').typeahead({
+        //         source: function(query, process) {
+        //             var Selectedlocation = $('#branch').val();
+
+        //             return $.get(path, {
+        //                 query: query,
+        //                 location: Selectedlocation,
+
+        //             }, function(data) {
+        //                 var formattedData = [];
+        //                 $.each(data, function(index, customer) {
+        //                     if (customer.name.toLowerCase().indexOf(query
+        //                             .toLowerCase()) !== -1) {
+        //                         formattedData.push(customer.name);
+        //                     } else if (customer.phno.indexOf(query) !== -1) {
+        //                         formattedData.push(customer.phno);
+        //                     }
+        //                 });
+        //                 return process(formattedData);
+        //             });
+        //         }
+        //     });
+
+        // Debugging version
         $(document).ready(function() {
-            var path = "{{ route('customer_service_search') }}";
             $('#customer').typeahead({
                 source: function(query, process) {
-                    var Selectedlocation = $('#location').val();
+                    console.log("Current query:", query);
 
-                    return $.get(path, {
-                        query: query,
-                        location: Selectedlocation,
-
-                    }, function(data) {
-                        var formattedData = [];
-                        $.each(data, function(index, customer) {
-                            if (customer.name.toLowerCase().indexOf(query
-                                    .toLowerCase()) !== -1) {
-                                formattedData.push(customer.name);
-                            } else if (customer.phno.indexOf(query) !== -1) {
-                                formattedData.push(customer.phno);
-                            }
-                        });
-                        return process(formattedData);
+                    $.ajax({
+                        url: "{{ route('customer_service_search') }}",
+                        data: {
+                            query: query,
+                            location: $('#location').val()
+                        },
+                        success: function(data) {
+                            console.log("Response data:", data);
+                            var names = $.map(data, function(customer) {
+                                return customer.name;
+                            });
+                            process(names);
+                        },
+                        error: function(xhr) {
+                            console.error("Error:", xhr.responseText);
+                        }
                     });
-                }
+                },
+                minLength: 1,
+                items: 5 // Maximum items to show
             });
-            $(document).on('click', '#customer_search', function(e) {
-                e.preventDefault();
-                let serialNumber = $("#customer").val();
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('customer_service_search_fill') }}",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        model: serialNumber
-                    },
-                    success: function(data) {
-                        console.log(data);
-                        $("#patient").val(data['customer']['name']);
-                        $("#customer_id").val(data['customer']['id']);
-                        $("#phone_no").val(data['customer']['phno']);
-                        $("#type").val(data['customer']['type']);
-                        $("#address").val(data['customer']['address']);
-                        $("#age").val(data['customer']['age']);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                    }
-                });
+        });
+        $(document).on('click', '#customer_search', function(e) {
+            e.preventDefault();
+            let serialNumber = $("#customer").val();
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('customer_service_search_fill') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    model: serialNumber
+                },
+                success: function(data) {
+                    console.log(data);
+                    $("#patient").val(data['customer']['name']);
+                    $("#customer_id").val(data['customer']['id']);
+                    $("#phone_no").val(data['customer']['phno']);
+                    $("#type").val(data['customer']['type']);
+                    $("#address").val(data['customer']['address']);
+                    $("#age").val(data['customer']['age']);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
             });
         });
     </script>
@@ -697,7 +804,7 @@
                         var formattedData = [];
                         $.each(data, function(index, customer) {
                             if (customer.name.toLowerCase().indexOf(query
-                            .toLowerCase()) !== -1) {
+                                    .toLowerCase()) !== -1) {
                                 formattedData.push(customer.name);
                             } else if (customer.phno.indexOf(query) !== -1) {
                                 formattedData.push(customer.phno);
@@ -995,7 +1102,7 @@
     </script>
 
 
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             var path = "{{ route('customer_service_search') }}";
 
@@ -1034,7 +1141,7 @@
             });
 
         });
-    </script>
+    </script> --}}
 
 
 
@@ -1074,7 +1181,7 @@
             $("#balance").val(balance); //update balance
         });
     </script>
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             const locationSelect = document.getElementById('location');
             const doctorSelect = document.getElementById('doctor_id');
@@ -1096,8 +1203,8 @@
                 @endforeach
             });
         });
-    </script>
-    <script>
+    </script> --}}
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             const locationSelect = document.getElementById('location');
             const branchSelect = document.getElementById('branch');
@@ -1110,7 +1217,84 @@
                 locationSelect.value = branchSelect.value;
             });
         });
+    </script> --}}
+
+    {{-- //get doctor --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationSelect = document.getElementById('location') || document.getElementById(
+                'location_user');
+            const doctorSelect = document.getElementById('doctor_id');
+
+            locationSelect.addEventListener('change', function() {
+                const locationId = this.value;
+
+                if (locationId) {
+                    // Fetch doctors for the selected location
+                    fetch(`/get-doctors?location=${locationId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                            data.forEach(doctor => {
+                                const option = document.createElement('option');
+                                option.value = doctor.id;
+                                option.textContent = doctor.name;
+                                option.setAttribute('data-branch', doctor.branch);
+                                doctorSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear doctors if no location selected
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                }
+            });
+        });
     </script>
+
+
+
+    {{-- Invoice Number Update --}}
+
+    <script>
+        // Admin Invoice Number ကို Update လုပ်မယ့် Function
+        function fetchAdminInvoiceUpdates() {
+            fetch("{{ url('admin_invoice_no_updates') }}")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const adminInvoiceNoInput = document.getElementById("invoice_no");
+
+                    // ဒေတာရှိပြီး တန်ဖိုးမတူရင် Update လုပ်မယ်
+                    if (data.invoice_no && adminInvoiceNoInput.value !== data.invoice_no) {
+                        adminInvoiceNoInput.value = data.invoice_no;
+                    }
+                })
+                .catch(error => {
+                    console.error("Invoice update error:", error);
+                    // Error ဖြစ်ရင် 5 စက္ကန့်ကြာပြီး ပြန်ကြိုးစားမယ်
+                    setTimeout(fetchAdminInvoiceUpdates, 5000);
+                });
+        }
+
+        // Page Load မှာ တစ်ခါအလုပ်လုပ်မယ်
+        $(document).ready(function() {
+            fetchAdminInvoiceUpdates();
+        });
+
+        // 1 စက္ကန့်တစ်ခါ Update လုပ်မယ်
+        const invoiceUpdateInterval = setInterval(fetchAdminInvoiceUpdates, 1000);
+
+        // Page ပိတ်တဲ့အခါ Interval ကိုရပ်မယ် (Optional)
+        window.addEventListener('beforeunload', function() {
+            clearInterval(invoiceUpdateInterval);
+        });
+    </script>
+
 </body>
 
 </HTML>

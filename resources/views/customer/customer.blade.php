@@ -107,6 +107,16 @@
                     </div>
                 @endif
 
+                @php
+                    $userPermissions = [];
+                    if (auth()->user()->permission) {
+                        $decodedPermissions = json_decode(auth()->user()->permission, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            $userPermissions = $decodedPermissions;
+                        }
+                    }
+                @endphp
+
 
                 <div class="ml-2 container-fluid">
 
@@ -117,9 +127,12 @@
 
 
                     <div class="row">
-                        <div class="mr-auto col"> <button type="button" class="mr-auto btn btn-primary "
-                                data-toggle="modal" data-target="#modal-lg">
-                                Register New Patient </button>
+                        <div class="mr-auto col">
+                            @if (in_array('Patient Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                <button type="button" class="mr-auto btn btn-primary " data-toggle="modal"
+                                    data-target="#modal-lg">
+                                    Register New Patient </button>
+                            @endif
 
                         </div>
 
@@ -167,7 +180,7 @@
                                                     placeholder="Enter Address" name="address" required>
                                             </div>
 
-                                            @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
+                                            {{-- @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
                                                 <div class="form-group">
                                                     <label for="branch">Location<span
                                                             class="text-danger">*</span></label>
@@ -187,7 +200,34 @@
                                                     <input class="form-control" type="text" name="branch"
                                                         id="branch" value="{{ auth()->user()->level }}" required>
                                                 </div>
-                                            @endif
+                                            @endif --}}
+
+                                            <div class="form-group">
+                                                <label for="branch">Location<span
+                                                        class="text-danger">*</span></label>
+                                                <select name="branch" id="branch" class="form-control"required>
+                                                    <option selected disabled>Select Location</option>
+                                                    @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
+                                                        @foreach ($branches as $branch)
+                                                            <option value="{{ $branch->id }}">{{ $branch->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @else
+                                                        @foreach ($branches as $branch)
+                                                            @php
+                                                                $userPermis = auth()->user()->level
+                                                                    ? json_decode(auth()->user()->level)
+                                                                    : [];
+                                                            @endphp
+                                                            @if (in_array($branch->id, $userPermis))
+                                                                <option value="{{ $branch->id }}">
+                                                                    {{ $branch->name }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
 
                                         </div>
 
@@ -251,11 +291,13 @@
 
                                                 <td>
                                                     <div class="row">
-                                                        <a href="{{ url('patient_edit', $customer->id) }}"
-                                                            title="Customer Edit" class="mx-2 btn btn-success"><i
-                                                                class="fa-solid fa-pen-to-square"></i></a>
+                                                        @if (in_array('Patient Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('patient_edit', $customer->id) }}"
+                                                                title="Customer Edit" class="mx-2 btn btn-success"><i
+                                                                    class="fa-solid fa-pen-to-square"></i></a>
+                                                        @endif
 
-                                                        @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin' || auth()->user()->type == 'Branch Manager')
+                                                        @if (in_array('Patient Delete', $userPermissions) || auth()->user()->is_admin == '1')
                                                             <a href="{{ url('patient_delete', $customer->id) }}"
                                                                 title="Customer Delete" class=" btn btn-danger"><i
                                                                     class="fa-solid fa-trash"></i></a>

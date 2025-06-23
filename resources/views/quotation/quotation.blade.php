@@ -187,7 +187,9 @@
                                                     <option value="Retail">Retail</option>
                                                 </select>
                                             </div>
-                                            @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
+
+
+                                            {{-- @if (Auth::user()->is_admin == '1')
                                                 <div class="mt-4 frmSearch col-md-3">
                                                     <div class="frmSearch col-sm-12">
                                                         <span style="font-weight:bolder">
@@ -226,6 +228,67 @@
                                                     </div>
 
 
+                                                </div>
+                                            @endif --}}
+
+                                            @if (Auth::user()->is_admin == '1')
+                                                {{-- Admin View - Can select any location --}}
+                                                <div class="mt-4 frmSearch col-md-3">
+                                                    <div class="frmSearch col-sm-12">
+                                                        <span style="font-weight:bolder">
+                                                            <label for="cst"
+                                                                class="caption">{{ trans('Location') }}&nbsp;</label>
+                                                        </span>
+                                                        <select name="location" id="location"
+                                                            class="mb-4 form-control location" required>
+                                                            <option value="">Select Location</option>
+                                                            @foreach ($warehouses as $warehouse)
+                                                                <option value="{{ $warehouse->id }}"
+                                                                    {{ old('location', $invoice->location ?? '') == $warehouse->id ? 'selected' : '' }}>
+                                                                    {{ $warehouse->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                {{-- Non-Admin View - Only show permitted locations --}}
+                                                @php
+                                                    // Safely decode user permissions
+                                                    $userPermissions = [];
+                                                    if (auth()->user()->level) {
+                                                        $decoded = json_decode(auth()->user()->level, true);
+                                                        $userPermissions = is_array($decoded)
+                                                            ? $decoded
+                                                            : [auth()->user()->level];
+                                                    }
+                                                    $userPermissions = array_filter($userPermissions); // Remove empty values
+                                                @endphp
+
+                                                <div class="mt-4 frmSearch col-md-3">
+                                                    <div class="frmSearch col-sm-12">
+                                                        <span style="font-weight:bolder">
+                                                            <label for="cst"
+                                                                class="caption">{{ trans('Location') }}&nbsp;</label>
+                                                        </span>
+                                                        <select name="location" id="location"
+                                                            class="mb-4 form-control location" required
+                                                            {{ count($userPermissions) <= 1 ? 'readonly' : '' }}>
+
+                                                            @if (empty($userPermissions))
+                                                                <option value="">No locations assigned</option>
+                                                            @else
+                                                                @foreach ($warehouses as $warehouse)
+                                                                    @if (in_array($warehouse->id, $userPermissions))
+                                                                        <option value="{{ $warehouse->id }}"
+                                                                            {{ old('location', $invoice->location ?? '') == $warehouse->id ? 'selected' : '' }}>
+                                                                            {{ $warehouse->name }}
+                                                                        </option>
+                                                                    @endif
+                                                                @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             @endif
 

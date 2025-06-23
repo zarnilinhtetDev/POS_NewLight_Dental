@@ -111,6 +111,16 @@
                             </div>
                         @endif
 
+                        @php
+                            $userPermissions = [];
+                            if (auth()->user()->permission) {
+                                $decodedPermissions = json_decode(auth()->user()->permission, true);
+                                if (json_last_error() === JSON_ERROR_NONE) {
+                                    $userPermissions = $decodedPermissions;
+                                }
+                            }
+                        @endphp
+
                         <a href="{{ route('daily_sales') }}" class="mb-3 btn btn-primary" style="border-radius:10px;"><i
                                 class="fa-regular fa-calendar-days"></i> Daily Sales</a>
 
@@ -197,18 +207,20 @@
                                                     <td>{{ $invoice->invoice_date }}</td>
                                                     <td>{{ $invoice->sale_by }}</td>
                                                     <td>
-                                                        <a href="{{ url('/invoice_detail', $invoice->id) }}"
-                                                            class="btn btn-primary btn-sm"><i
-                                                                class="fa-solid fa-eye"></i></a>
+                                                        @if (in_array('POS Details', $userPermissions) || auth()->user()->is_admin == '1')
+                                                            <a href="{{ url('/invoice_detail', $invoice->id) }}"
+                                                                class="btn btn-primary btn-sm"><i
+                                                                    class="fa-solid fa-eye"></i></a>
+                                                        @endif
 
-                                                        @if ($invoice->status == 'invoice')
+                                                        {{-- @if ($invoice->status == 'invoice')
                                                             <a href="{{ url('invoice_edit', $invoice->id) }}"
                                                                 class="btn btn-success btn-sm"><i
                                                                     class="fa-solid fa-pen-to-square"></i></a>
                                                         @else
-                                                        @endif
+                                                        @endif --}}
 
-                                                        @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin' || auth()->user()->type == 'Branch Manager')
+                                                        @if (in_array('POS Delete', $userPermissions) || auth()->user()->is_admin == '1')
                                                             <a href="{{ url('invoice_delete', $invoice->id) }}"
                                                                 class="btn btn-danger btn-sm"
                                                                 onclick="return confirm('Are you sure you want to delete this Invoice ?')"><i

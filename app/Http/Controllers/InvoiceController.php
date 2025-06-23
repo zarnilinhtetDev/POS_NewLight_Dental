@@ -21,20 +21,46 @@ use Illuminate\Support\Facades\DB;
 class InvoiceController extends Controller
 {
     //
+    // public function index()
+    // {
+
+    //     if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
+    //         $warehouses = Warehouse::all();
+    //         $invoices = Invoice::where('status', 'invoice')->latest()->get();
+    //     } else {
+    //         $warehouses = Warehouse::all();
+    //         $invoices = Invoice::where('status', 'invoice')->where('branch', auth()->user()->level)->latest()->get();
+    //     }
+    //     return view('invoice.invoice_manage', compact(
+    //         'invoices',
+    //         'warehouses'
+    //     ));
+    // }
+
     public function index()
     {
-        if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
+        $warehousePermission = auth()->user()->level
+            ? json_decode(auth()->user()->level, true)
+            : [];
+
+        if (auth()->user()->is_admin == '1') {
             $warehouses = Warehouse::all();
             $invoices = Invoice::where('status', 'invoice')->latest()->get();
         } else {
-            $warehouses = Warehouse::all();
-            $invoices = Invoice::where('status', 'invoice')->where('branch', auth()->user()->level)->latest()->get();
+            // Ensure branch comparison is array-based
+            $warehouses = Warehouse::whereIn('id', $warehousePermission)->get();
+            $invoices = Invoice::where('status', 'invoice')
+                ->whereIn('branch', $warehousePermission)
+                ->latest()
+                ->get();
         }
-        return view('invoice.invoice_manage', compact(
-            'invoices',
-            'warehouses'
-        ));
+
+        return view('invoice.invoice_manage', compact('invoices', 'warehouses'));
     }
+
+
+
+
 
 
     public function customer_invoice($customer_id = null)
@@ -73,34 +99,118 @@ class InvoiceController extends Controller
         return view('quotation.quotation', compact('quotation_no', 'units', 'warehouses'));
     }
 
-    public function invoice()
+    // public function invoice()
+    // {
+    //     $items = Item::latest()->get()->first();
+    //     $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+    //     if (auth()->user()->is_admin == '1') {
+    //         $doctors = Supplier::latest()->get();
+    //     } else {
+    //         $doctors = Supplier::where('branch', $warehousePermission)->latest()->get();
+    //     }
+    //     $invoices = Invoice::where('status', 'invoice')->latest()->get();
+    //     $invoice_no = "Invoice-" . count(Invoice::where('status', 'invoice')->withTrashed()->get()) + 1;
+    //     $units = Unit::all();
+    //     $warehouses = Warehouse::all();
+    //     // dd($warehouses);
+    //     return view('invoice.invoice', compact('invoice_no', 'units', 'warehouses', 'doctors', 'items'));
+    // }
+
+    public function invoice(Request $request)
     {
-        $items = Item::latest()->get()->first();
-        if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
-            $doctors = Supplier::latest()->get();
+        $items = Item::latest()->first();
+        $selectedBranch = $request->input('branch');
+        $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+
+        // Initialize doctors as empty collection
+        $doctors = collect();
+
+        if (auth()->user()->is_admin == '1') {
+            // Admin: only show doctors if location is selected
+            if ($selectedBranch) {
+                $doctors = Supplier::where('branch', $selectedBranch)->latest()->get();
+            }
         } else {
-            $doctors = Supplier::where('branch', auth()->user()->level)->latest()->get();
+            // Non-admin: only show doctors if selected location is in their permissions
+            if ($selectedBranch && in_array($selectedBranch, $warehousePermission)) {
+                $doctors = Supplier::where('branch', $selectedBranch)->latest()->get();
+            }
         }
+
         $invoices = Invoice::where('status', 'invoice')->latest()->get();
-        $invoice_no = "Invoice-" . count(Invoice::where('status', 'invoice')->withTrashed()->get()) + 1;
+        // $invoice_no = "Invoice-" . (Invoice::where('status', 'invoice')->withTrashed()->count() + 1);
+        $invoice_no = "Invoice-" . $selectedBranch .  (Invoice::where('status', 'invoice')->where('branch', $selectedBranch)->count() + 1);
+
+
         $units = Unit::all();
         $warehouses = Warehouse::all();
-        return view('invoice.invoice', compact('invoice_no', 'units', 'warehouses', 'doctors', 'items'));
+
+        return view('invoice.invoice', compact('invoice_no', 'units', 'warehouses', 'doctors', 'items', 'selectedBranch'));
     }
+
+    public function getDoctors(Request $request)
+    {
+        $location = $request->input('location');
+        $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+
+        if (auth()->user()->is_admin == '1') {
+            $doctors = Supplier::where('branch', $location)->get();
+        } else {
+            if (in_array($location, $warehousePermission)) {
+                $doctors = Supplier::where('branch', $location)->get();
+            } else {
+                $doctors = [];
+            }
+        }
+
+        return response()->json($doctors);
+    }
+
+
+
+    // public function pos_register()
+    // {
+    //     $invoices = Invoice::whereIn('status',  ['pos', 'suspend'])->latest()->get();
+    //     $suspends = Invoice::where('status', 'suspend')->latest()->get();
+    //     $invoice_no = "POS-" . count($invoices) + 1;
+    //     $units = Unit::all();
+    //     $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+    //     if (auth()->user()->is_admin == '1') {
+    //         $doctors = Supplier::latest()->get();
+    //     } else {
+    //         $doctors = Supplier::where('branch', $warehousePermission)->latest()->get();
+    //     }
+    //     $warehouses = Warehouse::all();
+    //     return view('invoice.pos', compact('invoice_no', 'units', 'warehouses', 'suspends', 'doctors'));
+    // }
+
     public function pos_register()
     {
-        $invoices = Invoice::whereIn('status',  ['pos', 'suspend'])->latest()->get();
+        $invoices = Invoice::whereIn('status', ['pos', 'suspend'])->latest()->get();
         $suspends = Invoice::where('status', 'suspend')->latest()->get();
-        $invoice_no = "POS-" . count($invoices) + 1;
+        $invoice_no = "POS-" . (count($invoices) + 1); // Make sure to use () for correct math
+
         $units = Unit::all();
-        if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
+        $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+
+        if (auth()->user()->is_admin == '1') {
             $doctors = Supplier::latest()->get();
         } else {
-            $doctors = Supplier::where('branch', auth()->user()->level)->latest()->get();
+            $doctors = Supplier::whereIn('branch', $warehousePermission)->latest()->get();
         }
+
         $warehouses = Warehouse::all();
+        // dd($warehouses);
+
         return view('invoice.pos', compact('invoice_no', 'units', 'warehouses', 'suspends', 'doctors'));
     }
+
+
+
+
+
+
+
     //    public function pos()
     //     {
     //         if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
@@ -139,6 +249,7 @@ class InvoiceController extends Controller
     public function invoice_register(Request $request)
     {
         // dd($request->all());
+
         // dd($request->input('sale_price'));
         $total_sale_price = 0;
         if ($request->input('sale_price')) {
@@ -153,6 +264,8 @@ class InvoiceController extends Controller
         $count = count($invoice_number);
 
         $doctor = Supplier::where('id', $request->doctor_id)->first();
+
+
         $doctor_commission = ($request->total - $total_sale_price) * ($doctor->sale_commission / 100);
         // dd((int)$doctor_commission);
 
@@ -305,33 +418,78 @@ class InvoiceController extends Controller
         return redirect()->back()->with('delete', 'Suspend Deleted Successful!');
     }
 
+    // public function invoice_edit($id)
+    // {
+
+    //     $invoice = Invoice::find($id);
+    //     $warehouses = Warehouse::all();
+
+
+    //     if ($invoice->status === 'suspend') {
+    //         $sells = Sell::where('invoiceid', $id)->get();
+    //         $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+    //         if (auth()->user()->is_admin == '1') {
+    //             $doctors = Supplier::latest()->get();
+    //         } else {
+    //             $doctors = Supplier::where('branch', $warehousePermission)->latest()->get();
+    //         }
+
+    //         return view('invoice.pos_edit', compact('invoice', 'sells', 'doctors', 'warehouses'));
+    //     } else {
+    //         // $sell = Sell::where('invoiceid', $id)->first();
+    //         $sells = Sell::where('invoiceid', $id)->get();
+    //         $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+    //         if (auth()->user()->is_admin == '1') {
+    //             $doctors = Supplier::latest()->get();
+    //         } else {
+    //             $doctors = Supplier::where('branch', $warehousePermission)->latest()->get();
+    //         }
+    //         // dd($sell->invoiceid);
+    //         return view('invoice.invoice_edit', compact('invoice', 'sells', 'doctors', 'warehouses'));
+    //     }
+    // }
+
     public function invoice_edit($id)
     {
-
-        $invoice = Invoice::find($id);
+        $invoice = Invoice::findOrFail($id);
         $warehouses = Warehouse::all();
+        $selectedBranch = $invoice->branch;
 
+        // Initialize empty array for all cases
+        $warehousePermission = [];
 
-        if ($invoice->status === 'suspend') {
-            $sells = Sell::where('invoiceid', $id)->get();
-            if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
-                $doctors = Supplier::latest()->get();
-            } else {
-                $doctors = Supplier::where('branch', auth()->user()->level)->latest()->get();
+        // Only decode permissions for non-admin users
+        if (auth()->user()->is_admin != '1' && auth()->user()->level) {
+            try {
+                $decoded = json_decode(auth()->user()->level, true);
+                $warehousePermission = is_array($decoded) ? $decoded : [];
+            } catch (\Exception $e) {
+                $warehousePermission = [];
             }
-
-            return view('invoice.pos_edit', compact('invoice', 'sells', 'doctors', 'warehouses'));
-        } else {
-            // $sell = Sell::where('invoiceid', $id)->first();
-            $sells = Sell::where('invoiceid', $id)->get();
-            if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
-                $doctors = Supplier::latest()->get();
-            } else {
-                $doctors = Supplier::where('branch', auth()->user()->level)->latest()->get();
-            }
-            // dd($sell->invoiceid);
-            return view('invoice.invoice_edit', compact('invoice', 'sells', 'doctors', 'warehouses'));
         }
+
+        // Doctor selection logic
+        $doctors = collect();
+
+        if (auth()->user()->is_admin == '1') {
+            // Admin can see all doctors or filter by selected branch
+            $doctors = $selectedBranch
+                ? Supplier::where('branch', $selectedBranch)->latest()->get()
+                : Supplier::latest()->get();
+        } else {
+            // Non-admin users get filtered by permissions
+            if (!empty($warehousePermission)) {
+                $doctors = $selectedBranch && in_array($selectedBranch, $warehousePermission)
+                    ? Supplier::where('branch', $selectedBranch)->latest()->get()
+                    : Supplier::whereIn('branch', $warehousePermission)->latest()->get();
+            }
+        }
+
+        $sells = Sell::where('invoiceid', $id)->get();
+
+        return $invoice->status === 'suspend'
+            ? view('invoice.pos_edit', compact('invoice', 'sells', 'doctors', 'warehouses', 'selectedBranch'))
+            : view('invoice.invoice_edit', compact('invoice', 'sells', 'doctors', 'warehouses', 'selectedBranch'));
     }
 
 
@@ -477,6 +635,26 @@ class InvoiceController extends Controller
 
 
 
+    public function admin_invoice_no_updates()
+    {
+        // Fetch the maximum numeric part of invoice numbers
+        $latestNumber = Invoice::where('status', 'invoice')
+            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(admin_invoice_no, '-', -1) AS UNSIGNED)) as max_invoice_no")
+            ->value('max_invoice_no');
+
+
+        // Calculate the next invoice number
+        $nextNumber = $latestNumber ? $latestNumber + 1 : 1;
+
+        // Generate the new invoice number
+        // $getInvoicePrefix = UserProfile::();
+        $invoice_no = "Invoice-" . $nextNumber;
+
+        return response()->json(['invoice_no' => $invoice_no]);
+    }
+
+
+
 
     // Customer Name Serarch
     public function customer_service_search(Request $request)
@@ -485,8 +663,11 @@ class InvoiceController extends Controller
             ->where('branch', $request->location)
             ->where('name', 'LIKE', '%' . $request->get('query') . '%')
             ->get(); // Retrieve all matching records
+        info($data);
+        // info($request->location);
+        info('Query: ' . $request->get('location'));
 
-        info($request->location);
+
         return response()->json($data);
     }
 

@@ -124,7 +124,7 @@
                                                     name="address" value="{{ $supplier->address }}" required>
                                             </div>
 
-                                            @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
+                                            {{-- @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
                                                 <div class="form-group">
                                                     <label for="branch">Location<span
                                                             class="text-danger">*</span></label>
@@ -145,7 +145,37 @@
                                                     <input class="form-control" type="text" name="branch"
                                                         id="branch" value="{{ auth()->user()->level }}">
                                                 </div>
-                                            @endif
+                                            @endif --}}
+
+                                            <div class="form-group">
+                                                <label for="branch">Location<span class="text-danger">*</span></label>
+                                                <select name="branch" id="branch" class="form-control" required>
+                                                    <option selected disabled>Select Location</option>
+                                                    @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
+                                                        @foreach ($branches as $branch)
+                                                            <option value="{{ $branch->id }}"
+                                                                {{ $branch->id == $supplier->branch ? 'selected' : '' }}>
+                                                                {{ $branch->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @else
+                                                        @foreach ($branches as $branch)
+                                                            @php
+                                                                $userPermis = auth()->user()->level
+                                                                    ? json_decode(auth()->user()->level)
+                                                                    : [];
+                                                            @endphp
+                                                            @if (in_array($branch->id, $userPermis))
+                                                                <option value="{{ $branch->id }}"
+                                                                    {{ $branch->id == $supplier->branch ? 'selected' : '' }}>
+                                                                    {{ $branch->name }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+
 
                                             <div class="form-group">
                                                 <label for="phno">Description</label>

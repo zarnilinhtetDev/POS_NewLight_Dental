@@ -14,19 +14,146 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderController extends Controller
 {
+
+
     public function index()
     {
-        $po = PurchaseOrder::latest()->get();
-        return view('purchase_order.purchase_order_manage', compact('po'));
+        $warehousePermission = auth()->user()->level
+            ? json_decode(auth()->user()->level, true)
+            : [];
+
+        if (auth()->user()->is_admin == '1') {
+            $warehouses = Warehouse::all();
+            $po = PurchaseOrder::latest()->get();
+        } else {
+            // Ensure branch comparison is array-based
+            $warehouses = Warehouse::whereIn('id', $warehousePermission)->get();
+            $po = PurchaseOrder::whereIn('branch', $warehousePermission)
+                ->latest()
+                ->get();
+        }
+
+        return view('purchase_order.purchase_order_manage', compact('po', 'warehouses'));
     }
-    public function purchase_order_register()
+
+
+    // public function index()
+    // {
+    //     $warehousePermission = auth()->user()->level
+    //         ? json_decode(auth()->user()->level, true)
+    //         : [];
+
+    //     $query = PurchaseOrder::query();
+
+    //     if (auth()->user()->is_admin != '1') {
+    //         $query->whereIn('branch', $warehousePermission);
+    //     }
+
+    //     $po = $query->latest()->get();
+
+    //     // Get all warehouses we need for reference
+    //     $warehouseIds = $po->pluck('branch')->unique()->filter();
+    //     $warehouses = Warehouse::whereIn('id', $warehouseIds)->get()->keyBy('id');
+
+
+
+    //     // $po = PurchaseOrder::latest()->get();
+    //     return view('purchase_order.purchase_order_manage', compact('po', 'warehouses'));
+    // }
+
+
+    // public function purchase_order_register()
+    // {
+    //     $suppliers = Supplier::all();
+    //     $po_number = PurchaseOrder::whereNotNull('quote_no')->latest()->get();
+    //     $units = Unit::all();
+    //     $po_no = 'PO-' . count($po_number) + 1;
+    //     $warehouses = Warehouse::all();
+    //     return view('purchase_order.purchase_order', compact('po_no', 'suppliers', 'units', 'warehouses'));
+    // }
+
+    // public function purchase_order_register(Request $request)
+    // {
+    //     $selectedBranch = $request->input('location');
+    //     $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+    //     $po_number = PurchaseOrder::whereNotNull('quote_no')->latest()->get();
+    //     $units = Unit::all();
+    //     // $po_no = 'PO-' . count($po_number) + 1;
+    //     $po_no = "PO-" . (PurchaseOrder::where('status', 'invoice')->withTrashed()->count() + 1);
+
+    //     $suppliers = collect();
+
+    //     if (auth()->user()->is_admin == '1') {
+    //         // Admin: only show doctors if location is selected
+    //         if ($selectedBranch) {
+    //             $suppliers = Supplier::where('branch', $selectedBranch)->latest()->get();
+    //         }
+    //     } else {
+    //         // Non-admin: only show doctors if selected location is in their permissions
+    //         if ($selectedBranch && in_array($selectedBranch, $warehousePermission)) {
+    //             $suppliers = Supplier::where('branch', $selectedBranch)->latest()->get();
+    //         }
+    //     }
+    //     $warehouses = Warehouse::all();
+    //     return view('purchase_order.purchase_order', compact('po_no', 'suppliers', 'units', 'warehousePermission', 'warehouses'));
+    // }
+
+    public function purchase_order_register(Request $request)
     {
-        $suppliers = Supplier::all();
+        $selectedBranch = $request->input('branch');
+        $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
         $po_number = PurchaseOrder::whereNotNull('quote_no')->latest()->get();
         $units = Unit::all();
-        $po_no = 'PO-' . count($po_number) + 1;
+
+        // Generate PO number based on branch
+        if ($selectedBranch) {
+            $branchCount = PurchaseOrder::where('branch', $selectedBranch)
+                ->where('status', 'invoice')
+                ->withTrashed()
+                ->count();
+            $po_no = "PO-" . $selectedBranch . "-" . ($branchCount + 1);
+        } else {
+            // Fallback if no branch is selected
+            $po_no = "PO-" . (PurchaseOrder::where('status', 'invoice')->withTrashed()->count() + 1);
+        }
+
+        $suppliers = collect();
+
+        if (auth()->user()->is_admin == '1') {
+            // Admin: only show doctors if location is selected
+            if ($selectedBranch) {
+                $suppliers = Supplier::where('branch', $selectedBranch)->latest()->get();
+            }
+        } else {
+            // Non-admin: only show doctors if selected location is in their permissions
+            if ($selectedBranch && in_array($selectedBranch, $warehousePermission)) {
+                $suppliers = Supplier::where('branch', $selectedBranch)->latest()->get();
+            }
+        }
+
         $warehouses = Warehouse::all();
-        return view('purchase_order.purchase_order', compact('po_no', 'suppliers', 'units', 'warehouses'));
+        return view('purchase_order.purchase_order', compact('po_no', 'suppliers', 'units', 'warehousePermission', 'warehouses'));
+    }
+
+
+
+
+    public function getSuppliers(Request $request)
+    {
+        $location = $request->input('location');
+        $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+
+        if (auth()->user()->is_admin == '1') {
+            $suppliers = Supplier::where('branch', $location)->get();
+        } else {
+            if (in_array($location, $warehousePermission)) {
+                $suppliers = Supplier::where('branch', $location)->get();
+            } else {
+                $suppliers = [];
+            }
+        }
+
+        return response()->json($suppliers);
     }
 
     //Customer Fill
@@ -81,6 +208,7 @@ class PurchaseOrderController extends Controller
         $invoice->balance_due  = $request->balance_due;
         $invoice->discount_total  = $request->discount;
         $invoice->deposit  = $request->paid;
+        $invoice->branch  = $request->branch;
         $invoice->remain_balance  = $request->balance;
         $invoice->remark = $request->remark;
         $invoice->payment_method   = $request->payment_method;
@@ -116,13 +244,47 @@ class PurchaseOrderController extends Controller
         return redirect('/purchase_order_manage')->with('success', 'Purchase Order Added Successful!');
     }
 
+    // public function edit($id)
+    // {
+    //     $suppliers = Supplier::all();
+    //     $purchase_orders = PurchaseOrder::find($id);
+    //     $purchase_sells = PO_sells::where('invoiceid', $id)->get();
+    //     $warehouses = Warehouse::all();
+    //     return view('purchase_order.purchase_order_edit', compact('purchase_orders', 'suppliers', 'purchase_sells', 'warehouses'));
+    // }
+
+
     public function edit($id)
     {
-        $suppliers = Supplier::all();
-        $purchase_orders = PurchaseOrder::find($id);
+        // Get current user's permissions
+        $user = auth()->user();
+        $warehousePermission = $user->level ? json_decode($user->level, true) : [];
+
+        // Get the purchase order
+        $purchase_orders = PurchaseOrder::findOrFail($id);
+
+        // Check permissions if not admin
+        if ($user->is_admin != '1' && !in_array($purchase_orders->branch, $warehousePermission)) {
+            return back()->with('error', 'Unauthorized access');
+        }
+
+        // Get data based on permissions
+        $suppliers = $user->is_admin == '1'
+            ? Supplier::all()
+            : Supplier::whereIn('branch', $warehousePermission)->get();
+
         $purchase_sells = PO_sells::where('invoiceid', $id)->get();
-        $warehouses = Warehouse::all();
-        return view('purchase_order.purchase_order_edit', compact('purchase_orders', 'suppliers', 'purchase_sells', 'warehouses'));
+        $warehouses = $user->is_admin == '1'
+            ? Warehouse::all()
+            : Warehouse::whereIn('id', $warehousePermission)->get();
+
+        return view('purchase_order.purchase_order_edit', compact(
+            'purchase_orders',
+            'suppliers',
+            'purchase_sells',
+            'warehouses',
+            'warehousePermission'
+        ));
     }
 
     public function purchase_order_update(Request $request, $id)
@@ -144,6 +306,7 @@ class PurchaseOrderController extends Controller
         $invoice->balance_due  = $request->balance_due;
         $invoice->discount_total  = $request->discount;
         $invoice->deposit  = $request->paid;
+        $invoice->branch  = $request->branch;
         $invoice->remain_balance  = $request->balance;
         $invoice->remark = $request->remark;
         $invoice->payment_method   = $request->payment_method;

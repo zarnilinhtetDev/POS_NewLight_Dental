@@ -109,6 +109,8 @@
                                 </button>
                             </div>
                         @endif
+
+
                         <div class="card ">
                             <div class="card-header">
                                 <div class="row">
@@ -124,6 +126,16 @@
                                     <!-- <a href="{{ url('invoice_commission_update') }}" class="ml-2 btn btn-primary bg-white"></a> -->
                                 </div>
                             </div>
+
+                            @php
+                                $userPermissions = [];
+                                if (auth()->user()->permission) {
+                                    $decodedPermissions = json_decode(auth()->user()->permission, true);
+                                    if (json_last_error() === JSON_ERROR_NONE) {
+                                        $userPermissions = $decodedPermissions;
+                                    }
+                                }
+                            @endphp
 
                             <!-- /.card-header -->
                             <div class="card-body">
@@ -172,27 +184,36 @@
                                                 <td>
 
 
-
-                                                    @if ($invoice->status == 'invoice')
-                                                        <a href="{{ url('make_payment', $invoice->id) }}"
-                                                            class="btn btn-warning btn-sm text-white mb-1"><i
-                                                                class="fa-solid fa-money-check-dollar"></i>
-                                                        </a>
+                                                    @if (in_array('Invoice Payment', $userPermissions) || auth()->user()->is_admin == '1')
+                                                        @if ($invoice->status == 'invoice')
+                                                            <a href="{{ url('make_payment', $invoice->id) }}"
+                                                                class="btn btn-warning btn-sm text-white mb-1"><i
+                                                                    class="fa-solid fa-money-check-dollar"></i>
+                                                            </a>
+                                                        @endif
                                                     @endif
 
-                                                    <a href="{{ url('/invoice_detail', $invoice->id) }}"
-                                                        class="btn btn-primary btn-sm"><i
-                                                            class="fa-solid fa-eye"></i></a>
-                                                    <a href="{{ url('/invoice_receipt', $invoice->id) }}"
-                                                        class="btn btn-info btn-sm"><i
-                                                            class="text-white fa-solid fa-print"></i></a>
-                                                    @if ($invoice->status == 'invoice')
-                                                        <a href="{{ url('invoice_edit', $invoice->id) }}"
-                                                            class="btn btn-success btn-sm"><i
-                                                                class="fa-solid fa-pen-to-square"></i></a>
-                                                    @else
+
+                                                    @if (in_array('Invoice Details', $userPermissions) || auth()->user()->is_admin == '1')
+                                                        <a href="{{ url('/invoice_detail', $invoice->id) }}"
+                                                            class="btn btn-primary btn-sm"><i
+                                                                class="fa-solid fa-eye"></i></a>
+                                                        <a href="{{ url('/invoice_receipt', $invoice->id) }}"
+                                                            class="btn btn-info btn-sm"><i
+                                                                class="text-white fa-solid fa-print"></i></a>
                                                     @endif
-                                                    @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin' || auth()->user()->type == 'Branch Manager')
+
+                                                    @if (in_array('Invoice Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                        @if ($invoice->status == 'invoice')
+                                                            <a href="{{ url('invoice_edit', $invoice->id) }}"
+                                                                class="btn btn-success btn-sm"><i
+                                                                    class="fa-solid fa-pen-to-square"></i></a>
+                                                        @else
+                                                        @endif
+                                                    @endif
+
+
+                                                    @if (in_array('Invoice Delete', $userPermissions) || auth()->user()->is_admin == '1')
                                                         <a href="{{ url('invoice_delete', $invoice->id) }}"
                                                             class="btn btn-danger btn-sm"
                                                             onclick="return confirm('Are you sure you want to delete this Invoice ?')"><i

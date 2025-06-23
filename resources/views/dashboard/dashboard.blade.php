@@ -266,17 +266,7 @@
                             </div>
 
 
-                            {{-- <div class="mt-3 bg-white  card-header col-6 col-md-6 col-lg-6">
 
-                                <h3 class="mx-3 my-2 mt-3 card-title">
-                                    <i class="mr-1 fa-regular fa-file-lines font-weight-bold"></i>
-                                    Item Transfer
-                                </h3>
-
-
-                                <canvas id="myChart" width="600" height="300"></canvas>
-
-                            </div> --}}
                         </div>
                     </div>
                 </section>

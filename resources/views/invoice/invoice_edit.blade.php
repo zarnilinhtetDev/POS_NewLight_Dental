@@ -100,8 +100,23 @@
                         @else
                             <div class="form-group" style="display: none;">
                                 <label for="branch">Location<span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" name="branch" id="branch"
-                                    value="{{ auth()->user()->level }}">
+                                @php
+                                    $warehousePermission = auth()->user()->level
+                                        ? json_decode(auth()->user()->level, true)
+                                        : [];
+                                @endphp
+                                <select name="branch" id="" class="form-control" required>
+
+                                    @foreach ($warehouses as $branch)
+                                        @if (in_array($branch->id, $warehousePermission))
+                                            <option value="{{ $branch->id }}"
+                                                {{ $branch->id == $invoice->branch ? 'selected' : '' }}>
+                                                {{ $branch->name }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+
                             </div>
                         @endif
                     </div>
@@ -164,48 +179,95 @@
                                                 </div>
                                             </div>
 
-                                            @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
-                                                <div class="frmSearch col-md-3">
-                                                    <div class="frmSearch col-sm-12">
-                                                        <span style="font-weight:bolder">
-                                                            <label for="cst"
-                                                                class="caption">{{ trans('Item Location') }}&nbsp;</label>
-                                                        </span> <select name="location" id="location"
-                                                            class="mb-4 form-control location" required>
 
-                                                            @foreach ($warehouses as $warehouse)
-                                                                <option value="{{ $warehouse->id }}"
-                                                                    @if ($warehouse->id == $invoice->location) selected @endif>
+                                            {{-- <div class="col-md-2"> <label for="location"
+                                                    style="font-weight:bolder">Choose
+                                                    Location</label>
+                                                <select name="branch" id="location" class="form-control mb-4"
+                                                    required>
+
+                                                    @if (Auth::user()->is_admin == '1' || auth::user()->type == '0')
+                                                        @foreach ($warehouses as $warehouse)
+                                                            <option value="{{ $warehouse->id }}"
+                                                                @if ($warehouse->id == $invoice->location) selected @endif>
+                                                                {{ $warehouse->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @else
+                                                        @foreach ($warehouses as $warehouse)
+                                                            @if ($warehouse->id == $invoice->location)
+                                                                <option value="{{ $warehouse->id }}">
                                                                     {{ $warehouse->name }}
                                                                 </option>
-                                                            @endforeach
-                                                        </select>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div> --}}
 
-                                                    </div>
+                                            {{-- <div class="col-md-2">
+                                                <label for="location" style="font-weight:bolder">Choose
+                                                    Location</label>
+                                                <select name="branch" id="location_admin" class="form-control mb-4"
+                                                    required>
+                                                    <option value="">Select Location</option>
+
+                                                    @if (Auth::user()->is_admin == '1' || auth()->user()->type == '0')
+
+                                                        @foreach ($warehouses as $warehouse)
+                                                            <option value="{{ $warehouse->id }}"
+                                                                {{ $warehouse->id == $selectedBranch ? 'selected' : '' }}>
+                                                                {{ $warehouse->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @else
+
+                                                        @foreach ($warehouses as $warehouse)
+                                                            @if (in_array($warehouse->id, $warehousePermission))
+                                                                <option value="{{ $warehouse->id }}"
+                                                                    {{ $warehouse->id == $selectedBranch ? 'selected' : '' }}>
+                                                                    {{ $warehouse->name }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div> --}}
+                                            @if (auth()->user()->is_admin == '1')
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">
+                                                        Location<span class="text-danger fw-bold">*</span>
+                                                    </label>
+                                                    <select name="branch" id="location_admin" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $warehouse)
+                                                            <option value="{{ $warehouse->id }}"
+                                                                {{ $warehouse->id == $invoice->branch ? 'selected' : '' }}>
+                                                                {{ $warehouse->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             @else
-                                                <div class="mt-4 frmSearch col-md-3" style="display: none;">
-                                                    <div class="frmSearch col-sm-12">
-                                                        <span style="font-weight:bolder">
-                                                            <label for="cst"
-                                                                class="caption">{{ trans('Location') }}&nbsp;</label>
-                                                        </span> <select name="location" id="location"
-                                                            class="mb-4 form-control location" required>
-
-                                                            @foreach ($warehouses as $warehouse)
-                                                                @if (auth()->user()->level == $warehouse->id)
-                                                                    <option value="{{ $warehouse->id }}" selected>
-                                                                        {{ $warehouse->name }}
-                                                                    </option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-
-                                                    </div>
-
-
+                                                <div class="col-md-3">
+                                                    <label for="location" style="font-weight:bolder">Location<span
+                                                            class="text-danger fw-bold">*</span></label>
+                                                    <select name="branch" id="location_user" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($warehouses as $branch)
+                                                            @if (in_array($branch->id, $warehousePermission))
+                                                                <option value="{{ $branch->id }}"
+                                                                    {{ $branch->id == $invoice->branch ? 'selected' : '' }}>
+                                                                    {{ $branch->name }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             @endif
+
                                         </div>
 
                                         <div class="frmSearch col-sm-12">
@@ -954,6 +1016,37 @@
 
             branchSelect.addEventListener('change', function() {
                 locationSelect.value = branchSelect.value;
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationSelect = document.getElementById('location_admin') || document.getElementById(
+                'location_user');
+            const doctorSelect = document.getElementById('doctor_id');
+
+            locationSelect.addEventListener('change', function() {
+                const locationId = this.value;
+
+                if (locationId) {
+                    // Fetch doctors for the selected location
+                    fetch(`/get-doctors?location=${locationId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                            data.forEach(doctor => {
+                                const option = document.createElement('option');
+                                option.value = doctor.id;
+                                option.textContent = doctor.name;
+                                option.setAttribute('data-branch', doctor.branch);
+                                doctorSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear doctors if no location selected
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                }
             });
         });
     </script>

@@ -11,11 +11,13 @@ class SupplierController extends Controller
     //
     public function index()
     {
-        if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
+
+        $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
+        if (auth()->user()->is_admin == '1') {
             $suppliers = Supplier::latest()->get();
             $branches = Warehouse::latest()->get();
         } else {
-            $suppliers = Supplier::where('branch', auth()->user()->level)->latest()->get();
+            $suppliers = Supplier::whereIn('branch', $warehousePermission)->latest()->get();
             $branches = Warehouse::latest()->get();
         }
 

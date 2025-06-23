@@ -94,6 +94,16 @@
                     </div>
                 @endif
 
+                @php
+                    $userPermissions = [];
+                    if (auth()->user()->permission) {
+                        $decodedPermissions = json_decode(auth()->user()->permission, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            $userPermissions = $decodedPermissions;
+                        }
+                    }
+                @endphp
+
                 <div class="ml-2 container-fluid">
                     <div class="row">
                         <div class="mr-auto col"> <button type="button" class="mr-auto btn btn-primary "
@@ -104,12 +114,14 @@
                     <div class="modal fade" id="modal-lg">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <div class="modal-header">
-                                    <h4 class="modal-title">Create Expense</h4>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
+                                @if (in_array('Expenses Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Create Expense</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                @endif
                                 <div class="modal-body">
                                     <form action="{{ url('expense_store') }}" method="POST">
                                         @csrf
@@ -227,11 +239,15 @@
                                             </td>
                                             <td>{{ number_format($expense->amount) }}</td>
                                             <td>
-                                                <a href="{{ url('expense_edit', $expense->id) }}"
-                                                    class="btn btn-success btn-sm"><i
-                                                        class="fa-solid fa-pen-to-square"></i></a>
 
-                                                @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin' || auth()->user()->type == 'Branch Manager')
+                                                @if (in_array('Expenses Edit', $userPermissions) || auth()->user()->is_admin == '1')
+                                                    <a href="{{ url('expense_edit', $expense->id) }}"
+                                                        class="btn btn-success btn-sm"><i
+                                                            class="fa-solid fa-pen-to-square"></i></a>
+                                                @endif
+
+
+                                                @if (in_array('Expenses Delete', $userPermissions) || auth()->user()->is_admin == '1')
                                                     <a href="{{ url('expense_delete', $expense->id) }}"
                                                         class="btn btn-danger btn-sm"
                                                         onclick="return confirm('Are you sure you want to delete this Expense?')"><i
