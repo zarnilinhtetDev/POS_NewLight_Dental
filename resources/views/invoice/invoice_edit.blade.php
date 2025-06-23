@@ -137,7 +137,7 @@
                                         <!-- <div class="form-group row"> -->
 
                                         <div class="row">
-                                            <div class="frmSearch col-sm-3">
+                                            <!-- <div class="frmSearch col-sm-3">
                                                 <span style="font-weight:bolder">
                                                     <label for="cst"
                                                         class="caption">{{ trans('Search  Customer Name & Phone No.') }}</label>
@@ -150,9 +150,40 @@
                                                         id="customer_search">Add</button>
                                                 </div>
                                                 <div id="customer-box-result"></div>
+                                            </div> -->
+
+                                            <div class="frmSearch col-sm-2">
+                                                <span style="font-weight:bolder">
+                                                    <label for="cst"
+                                                        class="caption">{{ trans('Search  Patient Name') }}</label>
+                                                </span>
+                                                <div class="form-group d-flex">
+                                                    <input type="text" id="customer" name="customer"
+                                                        class="mr-2 form-control round" autocomplete="off"
+                                                        placeholder="Search.....">
+                                                    &nbsp;&nbsp;&nbsp; <button type="submit" class="btn btn-primary"
+                                                        id="customer_search">Add</button>
+                                                </div>
+                                                <div id="customer-box-result"></div>
                                             </div>
 
-                                            <div class="col-sm-3 mt-4">
+                                            <div class="frmSearch col-sm-2">
+                                                <span style="font-weight:bolder">
+                                                    <label for="cst"
+                                                        class="caption">{{ trans('Search Patient Phone No') }}</label>
+                                                </span>
+                                                <div class="form-group d-flex">
+                                                    <input type="text" id="customer_phone" name="customer_phone"
+                                                        class="mr-2 form-control round" autocomplete="off"
+                                                        placeholder="Search.....">
+                                                    &nbsp;&nbsp;&nbsp; <button type="submit" class="btn btn-primary"
+                                                        id="customer_phone_search">Add</button>
+                                                </div>
+                                                <div id="customer-box-result"></div>
+                                            </div>
+
+
+                                            <div class="col-md-2 mt-4">
                                                 <a href="{{ url('patient') }}" class="btn btn-secondary">Patient
                                                     Register</a>
                                             </div>
@@ -238,7 +269,7 @@
                                                     <label for="location" style="font-weight:bolder">
                                                         Location<span class="text-danger fw-bold">*</span>
                                                     </label>
-                                                    <select name="branch" id="location_admin" class="form-control"
+                                                    <select name="branch" id="location" class="form-control"
                                                         required>
                                                         <option value="">Select Location</option>
                                                         @foreach ($warehouses as $warehouse)
@@ -253,7 +284,7 @@
                                                 <div class="col-md-3">
                                                     <label for="location" style="font-weight:bolder">Location<span
                                                             class="text-danger fw-bold">*</span></label>
-                                                    <select name="branch" id="location_user" class="form-control"
+                                                    <select name="branch" id="location" class="form-control"
                                                         required>
                                                         <option value="">Select Location</option>
                                                         @foreach ($warehouses as $branch)
@@ -605,7 +636,7 @@
 
     </div>
 
-    <script>
+    <!-- <script>
         $(document).ready(function() {
             var path = "{{ route('customer_service_search') }}";
             $('#customer').typeahead({
@@ -658,7 +689,151 @@
                 });
             });
         });
+    </script> -->
+
+    {{-- Customer Name Search --}}
+    <script>
+        // $(document).ready(function() {
+        //     var path = "{{ route('customer_service_search') }}";
+        //     $('#customer').typeahead({
+        //         source: function(query, process) {
+        //             var Selectedlocation = $('#branch').val();
+
+        //             return $.get(path, {
+        //                 query: query,
+        //                 location: Selectedlocation,
+
+        //             }, function(data) {
+        //                 var formattedData = [];
+        //                 $.each(data, function(index, customer) {
+        //                     if (customer.name.toLowerCase().indexOf(query
+        //                             .toLowerCase()) !== -1) {
+        //                         formattedData.push(customer.name);
+        //                     } else if (customer.phno.indexOf(query) !== -1) {
+        //                         formattedData.push(customer.phno);
+        //                     }
+        //                 });
+        //                 return process(formattedData);
+        //             });
+        //         }
+        //     });
+
+        // Debugging version
+        $(document).ready(function() {
+            $('#customer').typeahead({
+                source: function(query, process) {
+                    console.log("Current query:", query);
+
+                    $.ajax({
+                        url: "{{ route('customer_service_search') }}",
+                        data: {
+                            query: query,
+                            location: $('#location').val()
+                        },
+                        success: function(data) {
+                            console.log("Response data:", data);
+                            var names = $.map(data, function(customer) {
+                                return customer.name;
+                            });
+                            process(names);
+                        },
+                        error: function(xhr) {
+                            console.error("Error:", xhr.responseText);
+                        }
+                    });
+                },
+                minLength: 1,
+                items: 5 // Maximum items to show
+            });
+        });
+        $(document).on('click', '#customer_search', function(e) {
+            e.preventDefault();
+            let serialNumber = $("#customer").val();
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('customer_service_search_fill') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    model: serialNumber
+                },
+                success: function(data) {
+                    console.log(data);
+                    $("#patient").val(data['customer']['name']);
+                    $("#customer_id").val(data['customer']['id']);
+                    $("#phone_no").val(data['customer']['phno']);
+                    $("#type").val(data['customer']['type']);
+                    $("#address").val(data['customer']['address']);
+                    $("#age").val(data['customer']['age']);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
     </script>
+
+    {{-- Customer Phone Search --}}
+
+    <script>
+        $(document).ready(function() {
+            var path = "{{ route('customer_phone_search') }}";
+
+            $('#customer_phone').typeahead({
+                source: function(query, process) {
+                    var Selectedlocation = $('#location').val();
+
+                    return $.get(path, {
+                        query: query,
+                        location: Selectedlocation,
+                    }, function(data) {
+                        var formattedData = [];
+                        $.each(data, function(index, customer) {
+                            if (customer.name.toLowerCase().indexOf(query
+                                    .toLowerCase()) !== -1) {
+                                formattedData.push(customer.name);
+                            } else if (customer.phno.indexOf(query) !== -1) {
+                                formattedData.push(customer.phno);
+                            }
+                        });
+                        return process(formattedData);
+                    });
+                }
+            });
+
+            $(document).on('click', '#customer_phone_search', function(e) {
+                e.preventDefault();
+
+                let serialNumber = $("#customer_phone").val();
+                let Selectedlocation = $('#location').val(); // location ကိုယူ
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('customer_phone_search_fill') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        model: serialNumber,
+                        location: Selectedlocation // ဒီနေရာမှာပေးဖို့လိုတယ်
+                    },
+                    success: function(data) {
+                        console.log(data);
+                        $("#patient").val(data['customer']['name']);
+                        $("#customer_id").val(data['customer']['id']);
+                        $("#phone_no").val(data['customer']['phno']);
+                        $("#type").val(data['customer']['type']);
+                        $("#address").val(data['customer']['address']);
+                        $("#age").val(data['customer']['age']);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+
     <script>
         $(document).ready(function() {
             let count = 0;
@@ -1022,8 +1197,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const locationSelect = document.getElementById('location_admin') || document.getElementById(
-                'location_user');
+            const locationSelect = document.getElementById('location') || document.getElementById(
+                'location');
             const doctorSelect = document.getElementById('doctor_id');
 
             locationSelect.addEventListener('change', function() {

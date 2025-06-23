@@ -352,7 +352,7 @@
                                                 <div class="col-md-3"> {{-- changed from col-md-3 to col-md-4 --}}
                                                     <label for="location" style="font-weight:bolder">
                                                         Location<span class="text-danger fw-bold">*</span></label>
-                                                    <select name="location" id="location_admin" class="form-control"
+                                                    <select name="location" id="location" class="form-control"
                                                         required>
                                                         <option value="">Select Location</option>
                                                         @foreach ($warehouses as $warehouse)
@@ -366,7 +366,7 @@
                                                     <label for="location" style="font-weight:bolder">Location
                                                         <span class="text-danger fw-bold">*</span>
                                                     </label>
-                                                    <select name="location" id="location_user" class="form-control"
+                                                    <select name="location" id="location" class="form-control"
                                                         required>
                                                         <option value="">Select Location</option>
                                                         @foreach ($warehouses as $branch)
@@ -1289,6 +1289,38 @@
         <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
         <!-- AdminLTE App -->
         <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const locationSelect = document.getElementById('location') || document.getElementById(
+                    'location');
+                const doctorSelect = document.getElementById('doctor_id');
+
+                locationSelect.addEventListener('change', function() {
+                    const locationId = this.value;
+
+                    if (locationId) {
+                        // Fetch doctors for the selected location
+                        fetch(`/get-doctors?location=${locationId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                                data.forEach(doctor => {
+                                    const option = document.createElement('option');
+                                    option.value = doctor.id;
+                                    option.textContent = doctor.name;
+                                    option.setAttribute('data-branch', doctor.branch);
+                                    doctorSelect.appendChild(option);
+                                });
+                            });
+                    } else {
+                        // Clear doctors if no location selected
+                        doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                    }
+                });
+            });
+        </script>
+
 </body>
 
 </HTML>

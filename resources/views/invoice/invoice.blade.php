@@ -167,6 +167,10 @@
                             value="{{ $invoice_no }}" readonly>
                     </div>
 
+
+
+
+
                     <div class="col-md-3">
                         <label for="invoice_date" style="font-weight:bolder">Date</label>
                         <input type="date" name="invoice_date" class="form-control" max="{{ date('Y-m-d') }}"
@@ -1256,10 +1260,26 @@
 
     {{-- Invoice Number Update --}}
 
-    <script>
-        // Admin Invoice Number ကို Update လုပ်မယ့် Function
+    <!-- <script>
+        $('#location').on('change', function() {
+            fetchAdminInvoiceUpdates(
+
+            )
+
+        });
+
+        setInterval(() => {
+            fetchAdminInvoiceUpdates();
+            // console.log('interval');
+
+
+        }, 9000);
+
         function fetchAdminInvoiceUpdates() {
-            fetch("{{ url('admin_invoice_no_updates') }}")
+            const location = document.getElementById("location").value;
+            // console.log(branch);
+
+            fetch(`{{ url('admin_invoice_no_updates') }}?branch=${location}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error("Network response was not ok");
@@ -1268,32 +1288,21 @@
                 })
                 .then(data => {
                     const adminInvoiceNoInput = document.getElementById("invoice_no");
+                    // console.log(data);
+                    // console.log(adminInvoiceNoInput);
 
-                    // ဒေတာရှိပြီး တန်ဖိုးမတူရင် Update လုပ်မယ်
                     if (data.invoice_no && adminInvoiceNoInput.value !== data.invoice_no) {
                         adminInvoiceNoInput.value = data.invoice_no;
+
+                        console.log(data);
                     }
                 })
                 .catch(error => {
                     console.error("Invoice update error:", error);
-                    // Error ဖြစ်ရင် 5 စက္ကန့်ကြာပြီး ပြန်ကြိုးစားမယ်
                     setTimeout(fetchAdminInvoiceUpdates, 5000);
                 });
         }
-
-        // Page Load မှာ တစ်ခါအလုပ်လုပ်မယ်
-        $(document).ready(function() {
-            fetchAdminInvoiceUpdates();
-        });
-
-        // 1 စက္ကန့်တစ်ခါ Update လုပ်မယ်
-        const invoiceUpdateInterval = setInterval(fetchAdminInvoiceUpdates, 1000);
-
-        // Page ပိတ်တဲ့အခါ Interval ကိုရပ်မယ် (Optional)
-        window.addEventListener('beforeunload', function() {
-            clearInterval(invoiceUpdateInterval);
-        });
-    </script>
+    </script> -->
 
 </body>
 

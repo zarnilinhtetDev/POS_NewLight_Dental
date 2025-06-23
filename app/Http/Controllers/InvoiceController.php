@@ -635,23 +635,29 @@ class InvoiceController extends Controller
 
 
 
-    public function admin_invoice_no_updates()
-    {
-        // Fetch the maximum numeric part of invoice numbers
-        $latestNumber = Invoice::where('status', 'invoice')
-            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(admin_invoice_no, '-', -1) AS UNSIGNED)) as max_invoice_no")
-            ->value('max_invoice_no');
 
 
-        // Calculate the next invoice number
-        $nextNumber = $latestNumber ? $latestNumber + 1 : 1;
+//     public function admin_invoice_no_updates(Request $request)
+// {
+//     $branch = $request->input('branch'); // frontend ကနေ branch id ပို့လာမယ်
 
-        // Generate the new invoice number
-        // $getInvoicePrefix = UserProfile::();
-        $invoice_no = "Invoice-" . $nextNumber;
+//     // ညှိထားတဲ့ branch အတွက်သာ နောက်ဆုံးနံပါတ်ရှာမယ်
+//     $latestNumber = Invoice::where('status', 'invoice')
+//         ->where('branch', $branch)
+//         ->selectRaw("MAX(CAST(SUBSTRING_INDEX(invoice_no, '-', -1) AS UNSIGNED)) as max_invoice_no")
+//         ->value('max_invoice_no');
 
-        return response()->json(['invoice_no' => $invoice_no]);
-    }
+//     // နောက်တစ်ခုအတွက်နံပါတ် တွက်မယ်
+//     $nextNumber = $latestNumber ? $latestNumber + 1 : 1;
+
+//     // Invoice နံပါတ် ပြုလုပ်မယ်
+//     $invoice_no = "Invoice-" . $nextNumber;
+
+//     return response()->json(['invoice_no' => $invoice_no]);
+//     // return response()->json(['invoice_no' => $invoice_no,'nextNumber'=>$nextNumber]);
+//     // return response()->json($invoice_no);
+// }
+
 
 
 
