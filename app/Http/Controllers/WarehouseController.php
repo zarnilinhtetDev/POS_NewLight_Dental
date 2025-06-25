@@ -13,14 +13,20 @@ class WarehouseController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->is_admin == '1' || auth()->user()->level == 'Admin') {
-        $warehouses = Warehouse::all();
-        return view('warehouse.warehouse', compact('warehouses'));
+
+        $warehousePermission = auth()->user()->level
+            ? json_decode(auth()->user()->level, true)
+            : [];
+        if (auth()->user()->is_admin == '1') {
+            $warehouses = Warehouse::all();
+            return view('warehouse.warehouse', compact('warehouses'));
         } else {
-            $warehouses = Warehouse::where('id', auth()->user()->level)->get();
+            $warehouses = Warehouse::where('id', $warehousePermission)->get();
             return view('warehouse.warehouse', compact('warehouses'));
         }
     }
+
+
     public function warehouse_register(Request $request, Warehouse $warehouse)
     {
         try {

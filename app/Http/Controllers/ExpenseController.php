@@ -11,12 +11,15 @@ class ExpenseController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
+        $warehousePermission = auth()->user()->level
+            ? json_decode(auth()->user()->level, true)
+            : [];
+        if (auth()->user()->is_admin == '1') {
             $expenses = Expense::latest()->get();
             $categories = ExpenseCategory::latest()->get();
             $branches = Warehouse::latest()->get();
         } else {
-            $expenses = Expense::where('branch', auth()->user()->level)->latest()->get();
+            $expenses = Expense::where('branch', $warehousePermission)->latest()->get();
             $categories = ExpenseCategory::latest()->get();
             $branches = Warehouse::latest()->get();
         }

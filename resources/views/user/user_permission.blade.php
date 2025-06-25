@@ -796,8 +796,8 @@
                                                                 <div class="form-check">
                                                                     <input class="form-check-input" type="checkbox"
                                                                         id="permission-location" name="permission[]"
-                                                                        value="Location"
-                                                                        @if (in_array('Location', $permissions)) checked @endif>
+                                                                        value="Warehouse"
+                                                                        @if (in_array('Warehouse', $permissions)) checked @endif>
                                                                     <label class="form-check-label" for="permission">
                                                                         Location
                                                                     </label>

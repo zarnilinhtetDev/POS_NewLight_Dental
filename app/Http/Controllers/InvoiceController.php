@@ -59,10 +59,6 @@ class InvoiceController extends Controller
     }
 
 
-
-
-
-
     public function customer_invoice($customer_id = null)
     {
         $query = Invoice::where('status', 'invoice');
@@ -84,7 +80,21 @@ class InvoiceController extends Controller
 
     public function quotation()
     {
-        $quotations = Invoice::where('status', 'quotation')->latest()->get();
+
+        $warehousePermission = auth()->user()->level
+            ? json_decode(auth()->user()->level, true)
+            : [];
+
+        if (auth()->user()->is_admin == '1') {
+            $quotations = Invoice::where('status', 'quotation')->latest()->get();
+        } else {
+
+            $invoices = Invoice::where('status', 'quotation')
+                ->whereIn('branch', $warehousePermission)
+                ->latest()
+                ->get();
+        }
+
         return view('quotation.quotation_manage', compact(
             'quotations'
         ));
@@ -184,19 +194,33 @@ class InvoiceController extends Controller
     //     return view('invoice.pos', compact('invoice_no', 'units', 'warehouses', 'suspends', 'doctors'));
     // }
 
-    public function pos_register()
+    public function pos_register(Request $request)
     {
         $invoices = Invoice::whereIn('status', ['pos', 'suspend'])->latest()->get();
         $suspends = Invoice::where('status', 'suspend')->latest()->get();
         $invoice_no = "POS-" . (count($invoices) + 1); // Make sure to use () for correct math
 
         $units = Unit::all();
+        $selectedBranch = $request->input('branch');
         $warehousePermission = auth()->user()->level ? json_decode(auth()->user()->level, true) : [];
 
-        if (auth()->user()->is_admin == '1') {
-            $doctors = Supplier::latest()->get();
-        } else {
-            $doctors = Supplier::whereIn('branch', $warehousePermission)->latest()->get();
+        // if (auth()->user()->is_admin == '1') {
+        //     $doctors = Supplier::latest()->get();
+        // } else {
+        //     $doctors = Supplier::whereIn('branch', $warehousePermission)->latest()->get();
+        // }
+
+        $doctors = collect(); // default empty collection
+
+        if ($selectedBranch) {
+            if (auth()->user()->is_admin == '1') {
+                $doctors = Supplier::where('branch', $selectedBranch)->latest()->get();
+            } else {
+                // Ensure selected location is in user's permitted locations
+                if (in_array($selectedBranch, $warehousePermission)) {
+                    $doctors = Supplier::where('branch', $selectedBranch)->latest()->get();
+                }
+            }
         }
 
         $warehouses = Warehouse::all();
@@ -205,13 +229,7 @@ class InvoiceController extends Controller
         return view('invoice.pos', compact('invoice_no', 'units', 'warehouses', 'suspends', 'doctors'));
     }
 
-
-
-
-
-
-
-    //    public function pos()
+    //  public function pos()
     //     {
     //         if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
     //             $invoices = Invoice::where('status', 'pos')->latest()->get();
@@ -231,6 +249,10 @@ class InvoiceController extends Controller
     //             return view('invoice.pos_manage', compact('invoices'));
     //         }
     //     }
+
+
+
+
     public function pos()
     {
         if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin') {
@@ -365,9 +387,6 @@ class InvoiceController extends Controller
             return redirect('/invoice')->with('success', 'POS Added Successful!');
         }
     }
-
-
-
 
     public function quotation_delete($id)
     {
@@ -637,26 +656,26 @@ class InvoiceController extends Controller
 
 
 
-//     public function admin_invoice_no_updates(Request $request)
-// {
-//     $branch = $request->input('branch'); // frontend ကနေ branch id ပို့လာမယ်
+    //     public function admin_invoice_no_updates(Request $request)
+    // {
+    //     $branch = $request->input('branch'); // frontend ကနေ branch id ပို့လာမယ်
 
-//     // ညှိထားတဲ့ branch အတွက်သာ နောက်ဆုံးနံပါတ်ရှာမယ်
-//     $latestNumber = Invoice::where('status', 'invoice')
-//         ->where('branch', $branch)
-//         ->selectRaw("MAX(CAST(SUBSTRING_INDEX(invoice_no, '-', -1) AS UNSIGNED)) as max_invoice_no")
-//         ->value('max_invoice_no');
+    //     // ညှိထားတဲ့ branch အတွက်သာ နောက်ဆုံးနံပါတ်ရှာမယ်
+    //     $latestNumber = Invoice::where('status', 'invoice')
+    //         ->where('branch', $branch)
+    //         ->selectRaw("MAX(CAST(SUBSTRING_INDEX(invoice_no, '-', -1) AS UNSIGNED)) as max_invoice_no")
+    //         ->value('max_invoice_no');
 
-//     // နောက်တစ်ခုအတွက်နံပါတ် တွက်မယ်
-//     $nextNumber = $latestNumber ? $latestNumber + 1 : 1;
+    //     // နောက်တစ်ခုအတွက်နံပါတ် တွက်မယ်
+    //     $nextNumber = $latestNumber ? $latestNumber + 1 : 1;
 
-//     // Invoice နံပါတ် ပြုလုပ်မယ်
-//     $invoice_no = "Invoice-" . $nextNumber;
+    //     // Invoice နံပါတ် ပြုလုပ်မယ်
+    //     $invoice_no = "Invoice-" . $nextNumber;
 
-//     return response()->json(['invoice_no' => $invoice_no]);
-//     // return response()->json(['invoice_no' => $invoice_no,'nextNumber'=>$nextNumber]);
-//     // return response()->json($invoice_no);
-// }
+    //     return response()->json(['invoice_no' => $invoice_no]);
+    //     // return response()->json(['invoice_no' => $invoice_no,'nextNumber'=>$nextNumber]);
+    //     // return response()->json($invoice_no);
+    // }
 
 
 
@@ -728,9 +747,6 @@ class InvoiceController extends Controller
 
         return response()->json($responseData);
     }
-
-
-
 
     public function autocompletePartCodeInvoice(Request $request)
     {

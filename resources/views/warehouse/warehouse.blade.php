@@ -103,7 +103,7 @@
 
                 <div class="ml-2 container-fluid">
                     <div class="row">
-                        @if (in_array('Dashboard', $userPermissions) || auth()->user()->is_admin == '1')
+                        @if (in_array('Warehouse', $userPermissions) || auth()->user()->is_admin == '1')
                             <div class="mr-auto col"> <button type="button" class="mr-auto btn btn-primary "
                                     data-toggle="modal" data-target="#modal-lg">
                                     Register New Location
@@ -171,7 +171,7 @@
                                             <th>Name</th>
                                             <th>Phone Number</th>
                                             <th>Address</th>
-                                            @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
+                                            @if (in_array('Warehouse', $userPermissions) || auth()->user()->is_admin == '1')
                                                 <th>Action</th>
                                             @endif
                                         </tr>
@@ -186,7 +186,7 @@
                                                 <td>{{ $warehouse->name }}</td>
                                                 <td>{{ $warehouse->phone_number }}</td>
                                                 <td>{{ $warehouse->address }}</td>
-                                                @if (Auth::user()->is_admin == '1' || Auth::user()->type == 'Admin')
+                                                @if (in_array('Warehouse', $userPermissions) || auth()->user()->is_admin == '1')
                                                     <td>
                                                         <div class="row">
 

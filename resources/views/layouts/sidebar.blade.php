@@ -211,7 +211,7 @@
                     </li>
                 @endif
 
-                @if (in_array('Expense', $userPermissions) || auth()->user()->is_admin == '1')
+                @if (in_array('Expenses', $userPermissions) || auth()->user()->is_admin == '1')
                     <li class="nav-item">
                         <a href="{{ url('expense') }}" class="nav-link">
                             <i class="text-white fa-solid fa-money-check-dollar nav-icon"></i>
