@@ -132,13 +132,52 @@
                                                     placeholder="Enter name" required autofocus name="name">
                                             </div>
 
+                                            @php
+                                                $warehousePermissions = auth()->user()->level
+                                                    ? json_decode(auth()->user()->level, true)
+                                                    : [];
+
+                                            @endphp
+
+
+                                            @if (auth()->user()->is_admin == '1')
+                                                <div class="col-md-12">
+                                                    <label for="location" style="font-weight:bolder">
+                                                        Location<span class="text-danger fw-bold">*</span></label>
+                                                    <select name="branch" id="location" class="form-control" required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($branches as $branch)
+                                                            <option value="{{ $branch->id }}">
+                                                                {{ $branch->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @else
+                                                <div class="col-md-12">
+                                                    <label for="location" style="font-weight:bolder">Location<span
+                                                            class="text-danger fw-bold">*</span></label>
+                                                    <select name="branch" id="location" class="form-control"
+                                                        required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach ($branches as $branch)
+                                                            @if (in_array($branch->id, $warehousePermissions))
+                                                                <option value="{{ $branch->id }}">
+                                                                    {{ $branch->name }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @endif
+
                                             <div class="form-group">
-                                                <label for="category">Category<span class="text-danger">*</span></label>
+                                                <label for="category">Category<span
+                                                        class="text-danger">*</span></label>
                                                 <select class="form-control" id="category" required autofocus
                                                     name="category">
                                                     <option disabled>Select Category</option>
                                                     @foreach ($categories as $key => $category)
-                                                        <option value="{{ $category['name'] }}">{{ $category['name'] }}
+                                                        <option value="{{ $category['name'] }}">
+                                                            {{ $category['name'] }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -156,7 +195,7 @@
                                                     autofocus name="date">
                                             </div>
 
-                                            @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
+                                            {{-- @if (auth()->user()->is_admin == '1' || auth()->user()->type == 'Admin')
                                                 <div class="form-group">
                                                     <label for="branch">Location<span
                                                             class="text-danger">*</span></label>
@@ -176,7 +215,9 @@
                                                     <input class="form-control" type="text" name="branch"
                                                         id="branch" value="{{ auth()->user()->level }}" required>
                                                 </div>
-                                            @endif
+                                            @endif --}}
+
+
 
                                             <div class="form-group">
                                                 <label for="amount">Description<span
@@ -305,6 +346,45 @@
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
+
+    {{-- Get CAtegory --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationSelect = document.getElementById('location');
+            const categorySelect = document.getElementById('category');
+
+            locationSelect.addEventListener('change', function() {
+                const locationId = this.value;
+                console.log(locationId);
+
+                if (locationId) {
+                    // Fetch doctors for the selected location
+                    fetch(`/get-categories?location=${locationId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            categorySelect.innerHTML = '<option value="">Select Category</option>';
+                            data.forEach(category => {
+                                const option = document.createElement('option');
+                                option.value = category.id;
+                                option.textContent = category.name;
+                                option.setAttribute('data-branch', category.branch);
+                                categorySelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Clear doctors if no location selected
+                    categorySelect.innerHTML = '<option value="">Select Category</option>';
+                }
+            });
+        });
+    </script>
+
+
+
+
+
 
 
 </body>

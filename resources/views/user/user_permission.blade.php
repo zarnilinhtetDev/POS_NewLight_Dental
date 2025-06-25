@@ -426,6 +426,7 @@
                                                                 </div>
                                                             </div>
                                                         </td>
+                                                        <td></td>
                                                         <td>
                                                             <div class="form-group">
                                                                 <div class="form-check">
@@ -454,7 +455,7 @@
                                                         </td>
                                                         <td>
 
-                                                            <div class="form-group">
+                                                            {{-- <div class="form-group">
                                                                 <div
                                                                     class="form-check form-check-inline d-flex align-items-center">
                                                                     <input class="form-check-input" type="checkbox"
@@ -467,7 +468,7 @@
                                                                     </label>
                                                                 </div>
 
-                                                            </div>
+                                                            </div> --}}
                                                         </td>
                                                     </tr>
 
@@ -870,9 +871,8 @@
                                                             <div class="form-group">
                                                                 <div class="form-check">
                                                                     <input class="form-check-input" type="checkbox"
-                                                                        id="permission-transfer-other-1"
-                                                                        name="permission[]"
-                                                                        value="Transfer Item Delete"
+                                                                        id="permission-transfer-other-2"
+                                                                        name="permission[]" value="Transfer History"
                                                                         @if (in_array('Transfer History', $permissions)) checked @endif>
                                                                     <label class="form-check-label" for="permission">
                                                                         Transfer History
@@ -1427,15 +1427,15 @@
             $('#permission-pos').change(function() {
                 var isChecked = $(this).is(':checked');
                 if (isChecked) {
-                    $('#permission-pos-other-1').prop('checked', true);
-                    $('#permission-pos-other-2').prop('checked', true);
-                    $('#permission-pos-other-3').prop('checked', true);
-                    $('#permission-pos-other-4').prop('checked', true);
+                    $('#permission-pos-1').prop('checked', true);
+                    $('#permission-pos-2').prop('checked', true);
+                    $('#permission-pos-3').prop('checked', true);
+                    $('#permission-pos-4').prop('checked', true);
                 } else {
-                    $('#permission-pos-other-1').prop('checked', false);
-                    $('#permission-pos-other-2').prop('checked', false);
-                    $('#permission-pos-other-3').prop('checked', false);
-                    $('#permission-pos-other-4').prop('checked', false);
+                    $('#permission-pos-1').prop('checked', false);
+                    $('#permission-pos-2').prop('checked', false);
+                    $('#permission-pos-3').prop('checked', false);
+                    $('#permission-pos-4').prop('checked', false);
                 }
             });
         });
@@ -1529,12 +1529,14 @@
             });
         });
         $(document).ready(function() {
-            $('#permission-transfer').change(function() {
+            $('#permission-transfer-other-1').change(function() {
                 var isChecked = $(this).is(':checked');
                 if (isChecked) {
-                    $('#permission-transfer-other-1').prop('checked', true);
+                    // $('#permission-transfer-other-1').prop('checked', true);
+                    $('#permission-transfer-other-2').prop('checked', true);
                 } else {
-                    $('#permission-transfer-other-1').prop('checked', false);
+                    // $('#permission-transfer-other-1').prop('checked', false);
+                    $('#permission-transfer-other-2').prop('checked', false);
                 }
             });
         });

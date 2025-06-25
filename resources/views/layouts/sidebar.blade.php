@@ -54,12 +54,14 @@
                                     <p class="text-white">Treatement</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="{{ url('items_register') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon "></i>
-                                    <p class="text-white">Treatement Register</p>
-                                </a>
-                            </li>
+                            @if (in_array('Treatment Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                <li class="nav-item">
+                                    <a href="{{ url('items_register') }}" class="nav-link">
+                                        <i class="text-white far fa-circle nav-icon "></i>
+                                        <p class="text-white">Treatement Register</p>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
@@ -92,12 +94,14 @@
                                     <p class="text-white">POS Management</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="{{ url('pos_register') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">Issue POS</p>
-                                </a>
-                            </li>
+                            @if (in_array('Issue POS', $userPermissions) || auth()->user()->is_admin == '1')
+                                <li class="nav-item">
+                                    <a href="{{ url('pos_register') }}" class="nav-link">
+                                        <i class="text-white far fa-circle nav-icon"></i>
+                                        <p class="text-white">Issue POS</p>
+                                    </a>
+                                </li>
+                            @endif
 
                         </ul>
                     </li>
@@ -118,12 +122,14 @@
                                     <p class="text-white">Invoice Management</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="{{ url('invoice_reg') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">Issue Invoice</p>
-                                </a>
-                            </li>
+                            @if (in_array('Invoice Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                <li class="nav-item">
+                                    <a href="{{ url('invoice_reg') }}" class="nav-link">
+                                        <i class="text-white far fa-circle nav-icon"></i>
+                                        <p class="text-white">Issue Invoice</p>
+                                    </a>
+                                </li>
+                            @endif
 
                         </ul>
                     </li>
@@ -145,12 +151,14 @@
                                     <p class="text-white">Quotation Manage</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="{{ url('quotation_register') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">Issue Quotation</p>
-                                </a>
-                            </li>
+                            @if (in_array('Quotation Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                <li class="nav-item">
+                                    <a href="{{ url('quotation_register') }}" class="nav-link">
+                                        <i class="text-white far fa-circle nav-icon"></i>
+                                        <p class="text-white">Issue Quotation</p>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
@@ -170,12 +178,14 @@
                                     <p class="text-white"> Purchase Order Manage</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="{{ url('purchase_order_register') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">Issue Purchase Order</p>
-                                </a>
-                            </li>
+                            @if (in_array('Purchase Order Register', $userPermissions) || auth()->user()->is_admin == '1')
+                                <li class="nav-item">
+                                    <a href="{{ url('purchase_order_register') }}" class="nav-link">
+                                        <i class="text-white far fa-circle nav-icon"></i>
+                                        <p class="text-white">Issue Purchase Order</p>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
@@ -188,140 +198,164 @@
                                 Location
                             </p><i class="text-white right fas fa-angle-left"></i>
                         </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/warehouse') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">Location Manage</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('transfer_item') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">Transfer Item</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('show_transfer_history') }}" class="nav-link">
-                                    <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">Transfer History</p>
-                                </a>
-                            </li>
-                        </ul>
+                        @if (in_array('Location Register', $userPermissions) || auth()->user()->is_admin == '1')
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/warehouse') }}" class="nav-link">
+                                        <i class="text-white far fa-circle nav-icon"></i>
+                                        <p class="text-white">Location Manage</p>
+                                    </a>
+                                </li>
+                        @endif
+
+                        @if (in_array('Transfer Item', $userPermissions) || auth()->user()->is_admin == '1')
+                    <li class="nav-item">
+                        <a href="{{ url('transfer_item') }}" class="nav-link">
+                            <i class="text-white far fa-circle nav-icon"></i>
+                            <p class="text-white">Transfer Item</p>
+                        </a>
                     </li>
                 @endif
-
-                @if (in_array('Expenses', $userPermissions) || auth()->user()->is_admin == '1')
+                @if (in_array('Transfer History', $userPermissions) || auth()->user()->is_admin == '1')
                     <li class="nav-item">
-                        <a href="{{ url('expense') }}" class="nav-link">
-                            <i class="text-white fa-solid fa-money-check-dollar nav-icon"></i>
-                            <p class="pl-3 text-white">
-                                Expenses </p><i class="text-white right fas fa-angle-left"></i>
+                        <a href="{{ url('show_transfer_history') }}" class="nav-link">
+                            <i class="text-white far fa-circle nav-icon"></i>
+                            <p class="text-white">Transfer History</p>
                         </a>
-                        <ul class="nav nav-treeview">
+                    </li>
+                @endif
+            </ul>
+            </li>
+            @endif
+
+            @if (in_array('Expenses', $userPermissions) || auth()->user()->is_admin == '1')
+                <li class="nav-item">
+                    <a href="{{ url('expense') }}" class="nav-link">
+                        <i class="text-white fa-solid fa-money-check-dollar nav-icon"></i>
+                        <p class="pl-3 text-white">
+                            Expenses </p><i class="text-white right fas fa-angle-left"></i>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @if (in_array('Expenses Register', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('/expense') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Expense Register</p>
                                 </a>
                             </li>
+                        @endif
+                        @if (in_array('Expense Category', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('expense_category') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Expense Category</p>
                                 </a>
                             </li>
-                        </ul>
-                    </li>
-                @endif
+                        @endif
+                    </ul>
+                </li>
+            @endif
 
-                @if (in_array('Doctor', $userPermissions) || auth()->user()->is_admin == '1')
-                    <li class="nav-item">
-                        <a href="{{ url('/doctors') }}" class="nav-link">
-                            <i class="text-white fa-solid fa-user-doctor nav-icon"></i>
-                            <p class="pl-3 text-white">Doctors </p>
-                        </a>
+            @if (in_array('Doctor', $userPermissions) || auth()->user()->is_admin == '1')
+                <li class="nav-item">
+                    <a href="{{ url('/doctors') }}" class="nav-link">
+                        <i class="text-white fa-solid fa-user-doctor nav-icon"></i>
+                        <p class="pl-3 text-white">Doctors </p>
+                    </a>
 
-                    </li>
-                @endif
+                </li>
+            @endif
 
-                @if (in_array('Report', $userPermissions) || auth()->user()->is_admin == '1')
-                    <li class="nav-item">
-                        <a href="" class="nav-link">
-                            <i class="text-white fa-solid fa-receipt nav-icon"></i>
-                            <p class="pl-3 text-white">
-                                Report
-                            </p><i class="text-white right fas fa-angle-left"></i>
-                        </a>
-                        <ul class="nav nav-treeview">
+            @if (in_array('Report', $userPermissions) || auth()->user()->is_admin == '1')
+                <li class="nav-item">
+                    <a href="" class="nav-link">
+                        <i class="text-white fa-solid fa-receipt nav-icon"></i>
+                        <p class="pl-3 text-white">
+                            Report
+                        </p><i class="text-white right fas fa-angle-left"></i>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @if (in_array('Invoice Report', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('report') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Invoices</p>
                                 </a>
                             </li>
+                        @endif
+                        @if (in_array('Treatment Item Report', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('report_item') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Treatment Items</p>
                                 </a>
                             </li>
+                        @endif
+
+                        @if (in_array('Clinic Item Report', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('report_clinic_item') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Clinic Items</p>
                                 </a>
                             </li>
+                        @endif
+
+                        @if (in_array('Expenses Report', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('report_expense') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Expenses</p>
                                 </a>
                             </li>
+                        @endif
 
+                        @if (in_array('Doctor Report', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('doctor') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Doctors</p>
                                 </a>
                             </li>
-
+                        @endif
+                        @if (in_array('Profit', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
                                 <a href="{{ url('profit') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
                                     <p class="text-white">Profit</p>
                                 </a>
                             </li>
-                        </ul>
-                    </li>
-                @endif
+                        @endif
+                    </ul>
+                </li>
+            @endif
 
 
-                @if (in_array('User', $userPermissions) || auth()->user()->is_admin == '1')
-                    <li class="nav-item">
-                        <a class="nav-link">
-                            <i class="text-white fa-solid fa-users nav-icon"></i>
-                            <p class="pl-3 text-white">
-                                User </p><i class="text-white right fas fa-angle-left"></i>
-                        </a>
-                        <ul class="nav nav-treeview">
+            @if (in_array('User', $userPermissions) || auth()->user()->is_admin == '1')
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <i class="text-white fa-solid fa-users nav-icon"></i>
+                        <p class="pl-3 text-white">
+                            User </p><i class="text-white right fas fa-angle-left"></i>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('/user') }}" class="nav-link">
+                                <i class="text-white far fa-circle nav-icon"></i>
+                                <p class="text-white">User</p>
+                            </a>
+                        </li>
+                        @if (in_array('User Type', $userPermissions) || auth()->user()->is_admin == '1')
                             <li class="nav-item">
-                                <a href="{{ url('/user') }}" class="nav-link">
+                                <a href="{{ url('/user_type') }}" class="nav-link">
                                     <i class="text-white far fa-circle nav-icon"></i>
-                                    <p class="text-white">User</p>
+                                    <p class="text-white">User Type</p>
                                 </a>
                             </li>
-                            @if (in_array('User Type', $userPermissions) || auth()->user()->is_admin == '1')
-                                <li class="nav-item">
-                                    <a href="{{ url('/user_type') }}" class="nav-link">
-                                        <i class="text-white far fa-circle nav-icon"></i>
-                                        <p class="text-white">User Type</p>
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </li>
-                @endif
+                        @endif
+                    </ul>
+                </li>
+            @endif
 
             </ul>
         </nav>

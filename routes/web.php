@@ -184,6 +184,7 @@ Route::middleware('auth')->group(function () {
     Route::get('expense_category_edit/{id}', [ExpenseCategoryController::class, 'edit']);
     Route::post('expense_category_update/{id}', [ExpenseCategoryController::class, 'update']);
     Route::get('expense_category_delete/{id}', [ExpenseCategoryController::class, 'delete']);
+    Route::get('/get-categories', [ExpenseController::class, 'getCategory']);
 
     //POS
     Route::get('pos_register', [InvoiceController::class, 'pos_register']);
