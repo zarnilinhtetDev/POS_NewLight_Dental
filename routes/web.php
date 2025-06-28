@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
@@ -37,7 +38,10 @@ Route::get('/', function () {
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-
+    Route::get('/migrate_status', function () {
+        Artisan::call('migrate');
+        return back()->with('success', 'Migration successful!');
+    });
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
